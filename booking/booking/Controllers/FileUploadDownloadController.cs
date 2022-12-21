@@ -6,12 +6,15 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Cors;
+using System.Web;
 
 namespace booking.Controllers
 {
     [Route("api/image")]
     [ApiController]
     [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
+    [EnableCors("CorsPolicy")]
     public class FileUploadDownloadController : Controller
     {
         private readonly IBufferedFileUploadService _bufferedFileUploadService;
@@ -31,7 +34,21 @@ namespace booking.Controllers
             var fullPath = _fileDownloadService.GetFileToDownload(filePath);
             if (fullPath == null)
                 return NotFound(new { error = true, message = "Image is not found" });
-            return PhysicalFile(fullPath, "img/jpeg");
+
+            var extention = Path.GetExtension(filePath).ToLowerInvariant();
+            var stream = new FileStream(fullPath, FileMode.Open);
+            var fileName = Path.GetFileName(fullPath);
+            var contentType = MimeMapping.GetMimeMapping(extention);
+
+            if (contentType == null)
+            {
+                contentType = "application/octet-stream";
+            }
+
+            return new FileStreamResult(stream, contentType)
+            {
+                FileDownloadName = fileName
+            };
         }
 
         [HttpPost("device/{id}")]

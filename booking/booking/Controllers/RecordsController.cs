@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 
 
 namespace booking.Controllers
@@ -12,6 +13,7 @@ namespace booking.Controllers
     [Route("api/records")]
     [ApiController]
     [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
+    [EnableCors("CorsPolicy")]
     public class RecordsController : ControllerBase
     {
         private readonly DeviceBookingContext _context;

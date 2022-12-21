@@ -7,11 +7,14 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Visus.LdapAuthentication;
 using System.Security.Claims;
+using booking.DTO;
+using Microsoft.AspNetCore.Cors;
 
 namespace booking.Controllers
 {
     [Route("api/user")]
     [ApiController]
+    [EnableCors("CorsPolicy")]
     public class AuthorizationController : ControllerBase
     {
         private readonly DeviceBookingContext _context;
@@ -25,11 +28,11 @@ namespace booking.Controllers
 
         [HttpPost("login")]
         [AllowAnonymous]
-        public async Task<ActionResult<ILdapUser>> Login([FromForm] string username, [FromForm] string password)
+        public async Task<ActionResult<ILdapUser>> Login([FromBody] LoginDTO data)
         {
             try
             {
-                var retval = _authService.Login(username, password);
+                var retval = _authService.Login(data.Username, data.Password);
                 var user = await _context.Users.FirstOrDefaultAsync(user => user.Username == retval.Identity);
 
                 if (user == null)
