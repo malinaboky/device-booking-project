@@ -104,7 +104,7 @@ namespace booking.Controllers
 
         }
 
-        [HttpPost("add")]
+        [HttpPost()]
         public async Task<ActionResult<Record>> PostRecord([FromBody] NewRecordDTO newRecord)
         {
             var convertRecord = new ConvertTimeRecordDTO
@@ -119,8 +119,7 @@ namespace booking.Controllers
             var userName = HttpContext.User.Identity.Name;
 
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == userName);
-            var device = await _context.Devices.FindAsync(newRecord.DeviceId);
-            var department = await _context.Departments.FindAsync(newRecord.DepartmentId);
+            var device = await _context.Devices.Include(d => d.Department).FirstOrDefaultAsync(d => d.Id == newRecord.DeviceId);
             var oldRecord = await _context.Records.Include(r => r.User)
                                                   .Where(r => r.Date == convertRecord.Date)
                                                   .FirstOrDefaultAsync(r => !(r.TimeTo < convertRecord.TimeFrom || r.TimeFrom > convertRecord.TimeTo));
@@ -136,16 +135,15 @@ namespace booking.Controllers
             if (device == null)
                 return NotFound(new { error = true, message = "Device is not found" });
 
-            if (department == null)
-                return NotFound(new { error = true, message = "Department is not found" });
 
             var record = new Record {
                 Date = convertRecord.Date,
                 TimeFrom = convertRecord.TimeFrom,
                 TimeTo = convertRecord.TimeTo,
                 Device = device,
-                Department = department,
-                User = user
+                User = user,
+                Booked = true,
+                Department = device.Department
             };
 
             _context.Records.Add(record);
@@ -161,20 +159,24 @@ namespace booking.Controllers
         }
 
         [HttpPut("update/{recordId}")]
-        public async Task<ActionResult<Record>> UpdateRecord(int recordId)
+        public async Task<ActionResult<Record>> UpdateRecord([FromBody] RecordDTO recordInfo)
         {
             if (HttpContext.User.Identity == null)
                 return NotFound(new { error = true, message = "User is not found" });
 
-            var record = await _context.Records.Include(r => r.Device)
-                                               .Include(r => r.Department) 
-                                               .FirstOrDefaultAsync(r => r.Id == recordId);
+            var record = await _context.Records.Include(r => r.Device) 
+                                               .FirstOrDefaultAsync(r => r.Id == recordInfo.recordId);
+
+            var department = await _context.Departments.FindAsync(recordInfo.departmentId);
 
             if (record == null)
                 return NotFound(new { error = true, message = "Record is not found" });
 
+            if (department == null)
+                return NotFound(new { error = true, message = "Department is not found" });
+
             record.Booked = false;
-            record.Device.Department = record.Department;
+            record.Device.Department = department;
 
             _context.Entry(record).State = EntityState.Modified;
             _context.Entry(record.Device).State = EntityState.Modified;
@@ -187,7 +189,7 @@ namespace booking.Controllers
             {
                 return BadRequest(new { error = true, message = "Error saving to database" });
             }
-            return Ok($"Record updated; Don't forget to bring the device to department {record.Department.Name}");
+            return Ok($"Record updated; Don't forget to bring the device to department {department.Name}");
         }
 
         [HttpDelete("delete/{recordId}")]

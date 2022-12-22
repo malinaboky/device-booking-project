@@ -59,7 +59,7 @@ namespace booking.Controllers
         [HttpGet("logout")]
         public async Task<ActionResult> Logout()
         {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            await HttpContext.SignOutAsync("Cookies");
 
             return Ok(new { message = "User successfully logged out" });
         }

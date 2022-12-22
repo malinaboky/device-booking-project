@@ -84,13 +84,13 @@ namespace booking.Controllers
             {
                 Id = device.Id,
                 Name = device.Name,
-                Os = device.Os == null ? null : (device.Os.Name),
+                Os = device.Os?.Name,
                 Diagonal = device.Diagonal,
                 Class = device.Class,
-                Type = device.Type == null ? null : (device.Type.Name),
+                Type = device.Type?.Name,
                 Department = device.Department,
                 Info = device.Info,
-                Image = device.Img == null ? null : (device.Img.Path)
+                Image = device.Img?.Path
             });
         }
 
