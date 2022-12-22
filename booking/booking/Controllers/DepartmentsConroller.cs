@@ -9,21 +9,21 @@ using Microsoft.EntityFrameworkCore;
 
 namespace booking.Controllers
 {
-    [Route("api/department")]
+    [Route("api/departments")]
     [ApiController]
     [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
     [EnableCors("CorsPolicy")]
-    public class DepartmentConroller : ControllerBase
+    public class DepartmentsConroller : ControllerBase
     {
         private readonly DeviceBookingContext _context;
 
-        public DepartmentConroller(DeviceBookingContext context)
+        public DepartmentsConroller(DeviceBookingContext context)
         {
             _context = context;
         }
 
         [HttpGet()]
-        public async Task<ActionResult<IEnumerable<DepartmentDTO>>> GetTags()
+        public async Task<ActionResult<IEnumerable<DepartmentDTO>>> GetDepartments()
         {
             var list = await _context.Departments.Select(d => new DepartmentDTO { Id = d.Id, Name = d.Name}).ToListAsync();
 

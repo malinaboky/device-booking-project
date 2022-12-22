@@ -158,16 +158,16 @@ namespace booking.Controllers
             return Ok(new { Id = record.Id });
         }
 
-        [HttpPut("update/{recordId}")]
+        [HttpPut("update")]
         public async Task<ActionResult<Record>> UpdateRecord([FromBody] RecordDTO recordInfo)
         {
             if (HttpContext.User.Identity == null)
                 return NotFound(new { error = true, message = "User is not found" });
 
             var record = await _context.Records.Include(r => r.Device) 
-                                               .FirstOrDefaultAsync(r => r.Id == recordInfo.recordId);
+                                               .FirstOrDefaultAsync(r => r.Id == recordInfo.RecordId);
 
-            var department = await _context.Departments.FindAsync(recordInfo.departmentId);
+            var department = await _context.Departments.FindAsync(recordInfo.DepartmentId);
 
             if (record == null)
                 return NotFound(new { error = true, message = "Record is not found" });

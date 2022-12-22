@@ -2,8 +2,7 @@
 {
     public class RecordDTO
     {
-        public int recordId { get; set; }
-        public int departmentId { get; set; }
-
+        public int RecordId { get; set; }
+        public int DepartmentId { get; set; }
     }
 }
