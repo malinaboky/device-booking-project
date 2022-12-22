@@ -5,12 +5,15 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using booking.Deserializers;
+using Microsoft.AspNetCore.Cors;
+using booking.DTO;
 
 namespace booking.Controllers
 {
     [Route("api/profile")]
     [ApiController]
     [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
+    [EnableCors("CorsPolicy")]
     public class UserProfileController : ControllerBase
     {
         private readonly DeviceBookingContext _context;
@@ -43,6 +46,34 @@ namespace booking.Controllers
             {
                 return BadRequest(new { error = true, message = "Error saving to database" });
             }
+        }
+
+
+        [HttpGet]
+        public async Task<ActionResult> GetProfileInfo()
+        {
+            if (HttpContext.User.Identity == null)
+                return NotFound(new { error = true, message = "User is not found" });
+
+            var name = HttpContext.User.Identity.Name;
+            var user = await _context.Users.Include(u => u.Img).FirstOrDefaultAsync(u => u.Username == name);
+
+            if (user == null)
+            {
+                return NotFound(new { error = true, message = "User is not found" });
+            }
+
+            var info = new UserProfileDTO() {
+                Id = user.Id,
+                Firstname = user.Firstname,
+                Secondname = user.Secondname,
+                Username = user.Username,
+                ConnectLink = user.ConnectLink,
+                Status = user.Status,
+                Image = user?.Img?.Path
+            };
+
+            return Ok(info);
         }
     }
 }

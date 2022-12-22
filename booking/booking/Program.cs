@@ -47,11 +47,25 @@ builder.Services.AddAuthorization(opts =>
     });
 });
 
+builder.Services.AddCors(options => {
+    options.AddPolicy("CorsPolicy",
+        builder => builder
+        .WithOrigins("http://localhost:4200", "https://localhost:4200")
+        .AllowAnyMethod()
+        .AllowAnyHeader()
+        .AllowCredentials()
+        );
+});
+
 var app = builder.Build();
 
 app.UseCookiePolicy();
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
+
+// app.UseRouting();
+
+app.UseCors("CorsPolicy");
 
 app.UseAuthorization();
 
