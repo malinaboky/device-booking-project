@@ -26,11 +26,14 @@ namespace booking.Controllers
         [HttpPut("update")]
         public async Task<ActionResult> ChangeProfileInfo([FromBody] ProfileRootObject profileInfo)
         {
-            if (HttpContext.User.Identity == null)
+            if (HttpContext.User.Identity?.Name == null)
                 return NotFound(new { error = true, message = "User is not found" });
 
             var name = HttpContext.User.Identity.Name;
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == name);
+
+            if (user == null)
+                return NotFound(new { error = true, message = "User is not found" });
 
             user.Firstname = profileInfo.Firstname ?? user.Firstname;
             user.Secondname = profileInfo.Secondname ?? user.Secondname;
@@ -52,7 +55,7 @@ namespace booking.Controllers
         [HttpGet]
         public async Task<ActionResult> GetProfileInfo()
         {
-            if (HttpContext.User.Identity == null)
+            if (HttpContext.User.Identity?.Name == null)
                 return NotFound(new { error = true, message = "User is not found" });
 
             var name = HttpContext.User.Identity.Name;

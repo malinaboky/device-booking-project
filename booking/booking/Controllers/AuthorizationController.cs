@@ -56,6 +56,16 @@ namespace booking.Controllers
             }
         }
 
+        [HttpGet("authorize")]
+        [AllowAnonymous]
+        public ActionResult Check()
+        {
+            var authorize = isAuthorized();
+            if (authorize)
+                return Ok(new { authorize = authorize });
+            return Unauthorized(new { authorize = authorize });
+        }
+
         [HttpGet("logout")]
         public async Task<ActionResult> Logout()
         {
@@ -77,6 +87,13 @@ namespace booking.Controllers
                 IsPersistent = true,
                 ExpiresUtc = DateTime.UtcNow.AddMinutes(20)
             });
+        }
+
+        public bool isAuthorized()
+        {
+            if (HttpContext.User.Identity == null)
+                return false;
+            return HttpContext.User.Identity.IsAuthenticated;
         }
     }
 }

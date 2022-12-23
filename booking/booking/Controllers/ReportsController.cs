@@ -25,13 +25,17 @@ namespace booking.Controllers
         [HttpPost]
         public async Task<ActionResult> PostReport([FromBody] ReportDTO report)
         {
-            if (HttpContext.User.Identity == null)
+            if (HttpContext.User.Identity?.Name == null)
                 return NotFound(new { error = true, message = "User is not found" });
 
             if (report.Reason == null && report.Description == null)
                 return BadRequest(new { error = true, message = "Report is empty" });
 
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == HttpContext.User.Identity.Name);
+
+            if (user == null)
+                return NotFound(new { error = true, message = "User is not found" });
+
             var newReport = new Report { Reason = report.Reason, Description = report.Description, User = user};
 
             _context.Reports.Add(newReport);

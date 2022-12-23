@@ -74,10 +74,13 @@ namespace booking.Controllers
         [HttpPost("user")]
         public async Task<ActionResult> UploadUserImage(IFormFile file)
         {
-            if (HttpContext.User.Identity == null)
+            if (HttpContext.User.Identity?.Name == null)
                 return NotFound(new { error = true, message = "User is not found" });
 
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == HttpContext.User.Identity.Name);
+
+            if (user == null)
+                return NotFound(new { error = true, message = "User is not found" });
 
             try
             {

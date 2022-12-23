@@ -50,7 +50,7 @@ namespace booking.Controllers
         [HttpGet("history/user")]
         public async Task<ActionResult<IEnumerable<UserRecordsDTO>>> GetHistoryRecordsOfUser()
         {
-            if (HttpContext.User.Identity == null)
+            if (HttpContext.User.Identity?.Name == null)
                 return NotFound(new { error = true, message = "User is not found" });
 
             var user = HttpContext.User.Identity.Name;
@@ -75,7 +75,7 @@ namespace booking.Controllers
         [HttpGet("user")]
         public async Task<ActionResult<IEnumerable<UserRecordsDTO>>> GetRecordsOfUser()
         {
-            if (HttpContext.User.Identity == null)
+            if (HttpContext.User.Identity?.Name == null)
                 return NotFound(new { error = true, message = "User is not found" });
 
             var user = HttpContext.User.Identity.Name;
@@ -113,12 +113,16 @@ namespace booking.Controllers
                 TimeFrom = TimeOnly.FromDateTime(newRecord.TimeFrom),
                 TimeTo = TimeOnly.FromDateTime(newRecord.TimeTo)
             };
-            if (HttpContext.User.Identity == null)
+            if (HttpContext.User.Identity?.Name == null)
                 return NotFound(new { error = true, message = "User is not found" });
 
             var userName = HttpContext.User.Identity.Name;
 
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == userName);
+
+            if (user == null)
+                return NotFound(new { error = true, message = "User is not found" });
+
             var device = await _context.Devices.Include(d => d.Department).FirstOrDefaultAsync(d => d.Id == newRecord.DeviceId);
             var oldRecord = await _context.Records.Include(r => r.User)
                                                   .Where(r => r.Date == convertRecord.Date)
@@ -161,7 +165,7 @@ namespace booking.Controllers
         [HttpPut("update")]
         public async Task<ActionResult<Record>> UpdateRecord([FromBody] RecordDTO recordInfo)
         {
-            if (HttpContext.User.Identity == null)
+            if (HttpContext.User.Identity?.Name == null)
                 return NotFound(new { error = true, message = "User is not found" });
 
             var record = await _context.Records.Include(r => r.Device) 
@@ -195,7 +199,7 @@ namespace booking.Controllers
         [HttpDelete("delete/{recordId}")]
         public async Task<IActionResult> DeleteRecord(int recordId)
         {
-            if (HttpContext.User.Identity == null)
+            if (HttpContext.User.Identity?.Name == null)
                 return NotFound(new { error = true, message = "User is not found" });
 
             var record = await _context.Records.FindAsync(recordId);
