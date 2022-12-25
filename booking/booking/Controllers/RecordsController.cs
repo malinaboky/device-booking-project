@@ -61,6 +61,7 @@ namespace booking.Controllers
                                                 .ToListAsync();
 
             var list = records.Select(r => new UserRecordsDTO {
+                Id = r.Id,
                 Device = new DeviceInfo { Id = r.DeviceId, Name = r.Device.Name },
                 Booked = r.Booked,
                 TimeFrom = r.TimeFrom.ToLongTimeString(),
@@ -88,16 +89,16 @@ namespace booking.Controllers
 
             var list = records.Select(r => new UserRecordsDTO
             {
+                Id = r.Id,
                 Device = new DeviceInfo { 
                     Id = r.DeviceId,
                     Name = r.Device.Name,
-                    ImgPath = r.Device.Img != null ? r.Device.Img.Path : null
+                    ImgPath = r.Device.Img?.Path
                 },
                 Booked = r.Booked,
                 TimeFrom = r.TimeFrom.ToLongTimeString(),
                 TimeTo = r.TimeTo.ToLongTimeString(),
                 Date = r.Date.ToShortDateString(),
-               
             });
 
             return Ok(list);
@@ -126,7 +127,7 @@ namespace booking.Controllers
             var device = await _context.Devices.Include(d => d.Department).FirstOrDefaultAsync(d => d.Id == newRecord.DeviceId);
             var oldRecord = await _context.Records.Include(r => r.User)
                                                   .Where(r => r.Date == convertRecord.Date)
-                                                  .FirstOrDefaultAsync(r => !(r.TimeTo < convertRecord.TimeFrom || r.TimeFrom > convertRecord.TimeTo));
+                                                  .FirstOrDefaultAsync(r => !(r.TimeTo < convertRecord.TimeFrom || r.TimeFrom > convertRecord.TimeTo) && r.Booked);
 
             if (oldRecord != null)
                 return BadRequest(new
@@ -138,7 +139,6 @@ namespace booking.Controllers
 
             if (device == null)
                 return NotFound(new { error = true, message = "Device is not found" });
-
 
             var record = new Record {
                 Date = convertRecord.Date,
@@ -162,12 +162,9 @@ namespace booking.Controllers
             return Ok(new { Id = record.Id });
         }
 
-        [HttpPut("update")]
-        public async Task<ActionResult<Record>> UpdateRecord([FromBody] RecordDTO recordInfo)
+        [HttpPut("pass")]
+        public async Task<ActionResult> PassRecord([FromBody] RecordDTO recordInfo)
         {
-            if (HttpContext.User.Identity?.Name == null)
-                return NotFound(new { error = true, message = "User is not found" });
-
             var record = await _context.Records.Include(r => r.Device) 
                                                .FirstOrDefaultAsync(r => r.Id == recordInfo.RecordId);
 
@@ -193,15 +190,35 @@ namespace booking.Controllers
             {
                 return BadRequest(new { error = true, message = "Error saving to database" });
             }
-            return Ok($"Record updated; Don't forget to bring the device to department {department.Name}");
+            return Ok($"Record updated; Don't forget to bring the device to department {department}");
+        }
+
+        [HttpPost("cancel/{recordId}")]
+        public async Task<ActionResult> CancelRecord(int recordId)
+        {
+            var record = await _context.Records.FindAsync(recordId);
+
+            if (record == null)
+                return NotFound(new { error = true, message = "Record is not found" });
+
+            record.Booked = false;
+
+            _context.Entry(record).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                return BadRequest(new { error = true, message = "Error saving to database" });
+            }
+            return Ok(new { message = "Record cancelled successfully" });
         }
 
         [HttpDelete("delete/{recordId}")]
         public async Task<IActionResult> DeleteRecord(int recordId)
         {
-            if (HttpContext.User.Identity?.Name == null)
-                return NotFound(new { error = true, message = "User is not found" });
-
             var record = await _context.Records.FindAsync(recordId);
 
             if (record == null)

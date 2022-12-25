@@ -41,6 +41,23 @@ namespace booking.Controllers
             return Ok(list);
         }
 
+        [HttpGet()]
+        public async Task<ActionResult<IEnumerable<TagDTO>>> GetAllTags()
+        {
+            var list = await _context.Tags.Select(
+                                                 s => new TagDTO
+                                                 {
+                                                     Id = s.Id,
+                                                     Name = s.Name
+                                                 }
+            ).ToListAsync();
+
+            if (list.Count == 0)
+                return NotFound(new { error = true, message = "Tags are not found" });
+
+            return Ok(list);
+        }
+
         [HttpPut("{deviceId}/{tagId}")]
         public async Task<ActionResult> PutTagToDevice(int deviceId, int tagId)
         {

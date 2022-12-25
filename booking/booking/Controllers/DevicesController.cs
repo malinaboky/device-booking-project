@@ -7,6 +7,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.AspNetCore.Http.Extensions;
 
 namespace booking.Controllers
 {
@@ -26,6 +29,7 @@ namespace booking.Controllers
         [HttpGet("info/short")]
         public async Task<ActionResult<IEnumerable<ShortDevicesListDTO>>> GetDevices()
         {
+            var url = $"{Request.Scheme}://{Request.Host}{Request.PathBase}/api/image/?filePath=";
             var list = await _context.Devices.Include(d => d.Os)
                                              .Include(d => d.Img)
                                              .Include(d => d.Department)
@@ -34,10 +38,10 @@ namespace booking.Controllers
                                                   {
                                                       Id = s.Id,
                                                       Name = s.Name,
-                                                      Os = s.Os == null ? null : (s.Os.Name),
+                                                      Os = s.Os == null ? null : s.Os.Name,
                                                       Diagonal = s.Diagonal,
                                                       Department = s.Department,
-                                                      Image = s.Img == null ? null : (s.Img.Path)
+                                                      Image = s.Img == null ? null : $"{url}{s.Img.Path}"
                                                   }
             ).ToListAsync();
 
@@ -64,13 +68,14 @@ namespace booking.Controllers
                 Os = device.Os == null ? null : (device.Os.Name),
                 Diagonal = device.Diagonal,
                 Department = device.Department,
-                Image = device.Img == null ? null : (device.Img.Path)
+                Info = device.Info
             });
         }
 
         [HttpGet("info/full/{id}")]
         public async Task<ActionResult<FullDeviceCardDTO>> GetDeviceFull(int id)
         {
+            var url = $"{Request.Scheme}://{Request.Host}{Request.PathBase}/api/image/?filePath=";
             var device = await _context.Devices.Include(d => d.Os)
                                                .Include(d => d.Img)
                                                .Include(d => d.Type)
@@ -90,7 +95,7 @@ namespace booking.Controllers
                 Type = device.Type?.Name,
                 Department = device.Department,
                 Info = device.Info,
-                Image = device.Img?.Path
+                Image = $"{url}{device.Img?.Path}"
             });
         }
 
