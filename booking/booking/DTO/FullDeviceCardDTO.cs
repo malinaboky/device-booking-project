@@ -8,7 +8,6 @@ namespace booking.DTO
         public string Name { get; set; } = null!;
         public double? Diagonal { get; set; }
         public string? Resolution { get; set; }
-        public string? Class { get; set; }
         public string? Type { get; set; }
         public string? Os { get; set; }
         public Department? Department { get; set; }

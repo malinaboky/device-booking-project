@@ -76,6 +76,7 @@ namespace booking.Controllers
         [HttpGet("user")]
         public async Task<ActionResult<IEnumerable<UserRecordsDTO>>> GetRecordsOfUser()
         {
+            var url = $"{Request.Scheme}://{Request.Host}{Request.PathBase}/api/image/?filePath=";
             if (HttpContext.User.Identity?.Name == null)
                 return NotFound(new { error = true, message = "User is not found" });
 
@@ -93,7 +94,7 @@ namespace booking.Controllers
                 Device = new DeviceInfo { 
                     Id = r.DeviceId,
                     Name = r.Device.Name,
-                    ImgPath = r.Device.Img?.Path
+                    ImgPath = $"{url}{r.Device.Img?.Path}"
                 },
                 Booked = r.Booked,
                 TimeFrom = r.TimeFrom.ToLongTimeString(),

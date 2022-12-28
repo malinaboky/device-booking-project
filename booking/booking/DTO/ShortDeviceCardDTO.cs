@@ -11,6 +11,6 @@ namespace booking.DTO
         public string? Os { get; set; }
         public double? Diagonal { get; set; }
         public Department? Department { get; set; }
-        public string? Info { get; set; }
+        public string? Image { get; set; }
     }
 }

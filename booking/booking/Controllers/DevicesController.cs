@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Http.Extensions;
+using System.Security.Policy;
 
 namespace booking.Controllers
 {
@@ -53,6 +54,7 @@ namespace booking.Controllers
         [HttpGet("info/short/{id}")]
         public async Task<ActionResult<ShortDeviceCardDTO>> GetDeviceShort(int id)
         {
+            var url = $"{Request.Scheme}://{Request.Host}{Request.PathBase}/api/image/?filePath=";
             var device = await _context.Devices.Include(d => d.Os)
                                                .Include(d => d.Img)
                                                .Include(d => d.Department)
@@ -68,7 +70,7 @@ namespace booking.Controllers
                 Os = device.Os == null ? null : (device.Os.Name),
                 Diagonal = device.Diagonal,
                 Department = device.Department,
-                Info = device.Info
+                Image =$"{url}{device.Img?.Path}"
             });
         }
 
@@ -91,7 +93,6 @@ namespace booking.Controllers
                 Name = device.Name,
                 Os = device.Os?.Name,
                 Diagonal = device.Diagonal,
-                Class = device.Class,
                 Type = device.Type?.Name,
                 Department = device.Department,
                 Info = device.Info,

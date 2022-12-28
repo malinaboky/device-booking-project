@@ -35,10 +35,11 @@ namespace booking.Controllers
             return Ok(new FiltersSerializer { Types = types, Systems = systems, Departments = dep, Tags = tags });
         }
 
-        [HttpGet("search/{name}")]
-        public async Task<ActionResult<IEnumerable<ShortDevicesListDTO>>> SearchDevice([FromQuery] string? name, [FromBody] SearchRootObject root)
+        [HttpGet("search")]
+        public async Task<ActionResult<IEnumerable<ShortDevicesListDTO>>> SearchDevice([FromBody] SearchRootObject root)
         {
-            var list = await _context.Devices.Where(d => string.IsNullOrEmpty(name) || d.Name.ToLower().Replace(" ", "").Contains(name.ToLower().Replace(" ", "")))
+            var url = $"{Request.Scheme}://{Request.Host}{Request.PathBase}/api/image/?filePath=";
+            var list = await _context.Devices.Where(d => string.IsNullOrEmpty(root.Name) || d.Name.ToLower().Replace(" ", "").Contains(root.Name.ToLower().Replace(" ", "")))
                                              .Where(d => root.Type == null || d.TypeId == root.Type)
                                              .Where(d => root.Os == null || d.OsId == root.Os)
                                              .Where(d => root.Department == null || d.DepartmentId == root.Department)
@@ -49,14 +50,14 @@ namespace booking.Controllers
                                                  Os = d.Os == null ? null : (d.Os.Name),
                                                  Diagonal = d.Diagonal,
                                                  Department = d.Department,
-                                                 Image = d.Img == null ? null : (d.Img.Path)
+                                                 Image = d.Img == null ? null : $"{url}{d.Img.Path}"
                                              })
                                              .ToListAsync();
            
             if (root.Tags != null)
             {
                 var tags = await _context.Tags.Include(t => t.TagInfos).ToListAsync();
-                var finalTags = tags.Intersect(root.Tags)
+                var finalTags = tags.Where(t => root.Tags.Contains(t.Id))
                     .SelectMany(t => t.TagInfos.Select(info => info.DeviceId))
                     .GroupBy(t => t)
                     .ToDictionary(group => group.Key, group => group.Count());

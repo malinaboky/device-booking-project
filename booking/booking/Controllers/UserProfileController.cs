@@ -55,6 +55,8 @@ namespace booking.Controllers
         [HttpGet]
         public async Task<ActionResult> GetProfileInfo()
         {
+            var url = $"{Request.Scheme}://{Request.Host}{Request.PathBase}/api/image/?filePath=";
+
             if (HttpContext.User.Identity?.Name == null)
                 return NotFound(new { error = true, message = "User is not found" });
 
@@ -73,7 +75,7 @@ namespace booking.Controllers
                 Username = user.Username,
                 ConnectLink = user.ConnectLink,
                 Status = user.Status,
-                Image = user?.Img?.Path
+                Image = $"{url}{user.Img?.Path}"
             };
 
             return Ok(info);
