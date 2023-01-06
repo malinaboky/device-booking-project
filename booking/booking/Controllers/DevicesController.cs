@@ -31,6 +31,7 @@ namespace booking.Controllers
         public async Task<ActionResult<IEnumerable<ShortDevicesListDTO>>> GetDevices()
         {
             var url = $"{Request.Scheme}://{Request.Host}{Request.PathBase}/api/image/?filePath=";
+
             var list = await _context.Devices.Include(d => d.Os)
                                              .Include(d => d.Img)
                                              .Include(d => d.Department)
@@ -41,7 +42,7 @@ namespace booking.Controllers
                                                       Name = s.Name,
                                                       Os = s.Os == null ? null : s.Os.Name,
                                                       Diagonal = s.Diagonal,
-                                                      Department = s.Department,
+                                                      Department = s.Department == null ? null : new DepartmentDTO { Id = s.Department.Id, Name = s.Department.Name},
                                                       Image = s.Img == null ? null : $"{url}{s.Img.Path}"
                                                   }
             ).ToListAsync();
@@ -55,6 +56,7 @@ namespace booking.Controllers
         public async Task<ActionResult<ShortDeviceCardDTO>> GetDeviceShort(int id)
         {
             var url = $"{Request.Scheme}://{Request.Host}{Request.PathBase}/api/image/?filePath=";
+
             var device = await _context.Devices.Include(d => d.Os)
                                                .Include(d => d.Img)
                                                .Include(d => d.Department)
@@ -69,7 +71,7 @@ namespace booking.Controllers
                 Name = device.Name,
                 Os = device.Os == null ? null : (device.Os.Name),
                 Diagonal = device.Diagonal,
-                Department = device.Department,
+                Department = device.Department == null ? null : new DepartmentDTO { Id = device.Department.Id, Name = device.Department.Name },
                 Image =$"{url}{device.Img?.Path}"
             });
         }
@@ -78,6 +80,7 @@ namespace booking.Controllers
         public async Task<ActionResult<FullDeviceCardDTO>> GetDeviceFull(int id)
         {
             var url = $"{Request.Scheme}://{Request.Host}{Request.PathBase}/api/image/?filePath=";
+
             var device = await _context.Devices.Include(d => d.Os)
                                                .Include(d => d.Img)
                                                .Include(d => d.Type)
@@ -94,7 +97,7 @@ namespace booking.Controllers
                 Os = device.Os?.Name,
                 Diagonal = device.Diagonal,
                 Type = device.Type?.Name,
-                Department = device.Department,
+                Department = device.Department == null ? null : new DepartmentDTO { Id = device.Department.Id, Name = device.Department.Name },
                 Info = device.Info,
                 Image = $"{url}{device.Img?.Path}"
             });
@@ -171,6 +174,7 @@ namespace booking.Controllers
                 return BadRequest(new { error = true, message = "Device is booked now" });
            
             _context.Records.RemoveRange(_context.Records.Where(r => r.DeviceId == device.Id));
+            _context.TagInfos.RemoveRange(_context.TagInfos.Where(r => r.DeviceId == device.Id));
             _context.Devices.Remove(device);
 
             try

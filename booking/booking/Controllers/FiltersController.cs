@@ -49,7 +49,7 @@ namespace booking.Controllers
                                                  Name = d.Name,
                                                  Os = d.Os == null ? null : (d.Os.Name),
                                                  Diagonal = d.Diagonal,
-                                                 Department = d.Department,
+                                                 Department = d.Department == null ? null : new DepartmentDTO { Id = d.Department.Id, Name = d.Department.Name},
                                                  Image = d.Img == null ? null : $"{url}{d.Img.Path}"
                                              })
                                              .ToListAsync();

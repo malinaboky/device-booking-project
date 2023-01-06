@@ -32,8 +32,9 @@ builder.Host.ConfigureServices(services =>
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
 {
-    options.ExpireTimeSpan = TimeSpan.FromMinutes(20);
+    options.SlidingExpiration = true;
     options.Events.OnRedirectToLogin = (context) => {
+        options.SlidingExpiration = true;
         context.Response.StatusCode = 401;
         return Task.CompletedTask;
     };

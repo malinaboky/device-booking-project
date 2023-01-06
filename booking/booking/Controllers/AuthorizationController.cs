@@ -46,7 +46,7 @@ namespace booking.Controllers
                     {
                         return BadRequest(new { error = true, message = "Error saving to database" });
                     }
-                await Authenticate(user);
+                await Authenticate(user, data.RememberMe);
 
                 return Ok(new { message = "User successfully logged in" });
             }
@@ -69,12 +69,12 @@ namespace booking.Controllers
         [HttpGet("logout")]
         public async Task<ActionResult> Logout()
         {
-            await HttpContext.SignOutAsync("Cookies");
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
             return Ok(new { message = "User successfully logged out" });
         }
 
-        private async Task Authenticate(User user)
+        private async Task Authenticate(User user, bool rememberMe)
         {
             var claims = new List<Claim>
             {
@@ -82,11 +82,23 @@ namespace booking.Controllers
                 new Claim(ClaimsIdentity.DefaultRoleClaimType, user.Status)
             };
             ClaimsIdentity id = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(id), new AuthenticationProperties
+
+            if (rememberMe)
             {
-                IsPersistent = true,
-                ExpiresUtc = DateTime.UtcNow.AddMinutes(20)
-            });
+                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(id), new AuthenticationProperties
+                {
+                    IsPersistent = true,
+                    ExpiresUtc = DateTime.UtcNow.AddMinutes(5)
+                });
+            }
+            else
+            {
+                await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(id), new AuthenticationProperties
+                {
+                    IsPersistent = true,
+                    ExpiresUtc = DateTime.UtcNow.AddMinutes(1)
+                });
+            } 
         }
 
         public bool isAuthorized()

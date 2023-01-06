@@ -8,7 +8,7 @@ namespace booking.DTO
         public string Name { get; set; } = null!;
         public string? Os { get; set; }
         public double? Diagonal { get; set; }
-        public Department? Department { get; set; }
+        public DepartmentDTO? Department { get; set; }
         public string? Image { get; set; }
     }
 }

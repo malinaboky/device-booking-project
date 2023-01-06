@@ -191,7 +191,7 @@ namespace booking.Controllers
             {
                 return BadRequest(new { error = true, message = "Error saving to database" });
             }
-            return Ok($"Record updated; Don't forget to bring the device to department {department}");
+            return Ok($"Record updated; Don't forget to bring the device to department {department.Name}");
         }
 
         [HttpPost("cancel/{recordId}")]
