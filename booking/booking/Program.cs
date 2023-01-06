@@ -34,7 +34,6 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 {
     options.SlidingExpiration = true;
     options.Events.OnRedirectToLogin = (context) => {
-        options.SlidingExpiration = true;
         context.Response.StatusCode = 401;
         return Task.CompletedTask;
     };
@@ -59,6 +58,12 @@ builder.Services.AddCors(options => {
 });
 
 var app = builder.Build();
+
+using (var serviceScope = app.Services.CreateScope())
+{
+    var context = serviceScope.ServiceProvider.GetRequiredService<DeviceBookingContext>();
+    context.Database.EnsureCreated();
+}
 
 app.UseCookiePolicy();
 

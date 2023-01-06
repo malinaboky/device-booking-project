@@ -88,7 +88,8 @@ namespace booking.Controllers
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(id), new AuthenticationProperties
                 {
                     IsPersistent = true,
-                    ExpiresUtc = DateTime.UtcNow.AddMinutes(5)
+                    ExpiresUtc = DateTime.UtcNow.AddMonths(1),
+                    AllowRefresh = true
                 });
             }
             else
@@ -96,7 +97,8 @@ namespace booking.Controllers
                 await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(id), new AuthenticationProperties
                 {
                     IsPersistent = true,
-                    ExpiresUtc = DateTime.UtcNow.AddMinutes(1)
+                    ExpiresUtc = DateTime.UtcNow.AddMinutes(20),
+                    AllowRefresh = true
                 });
             } 
         }
