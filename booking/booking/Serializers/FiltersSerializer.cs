@@ -8,5 +8,6 @@ namespace booking.Serializers
         public List<OsDTO>? Systems { get; set; }
         public List<DepartmentDTO>? Departments { get; set; }
         public List<TagDTO>? Tags { get; set; }
+        public double? MaxLen { get; set; }
     }
 }

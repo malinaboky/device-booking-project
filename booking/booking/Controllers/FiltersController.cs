@@ -31,11 +31,12 @@ namespace booking.Controllers
             var systems = await _context.Os.Select(o => new OsDTO { Id = o.Id, Name = o.Name }).ToListAsync();
             var dep = await _context.Departments.Select(d => new DepartmentDTO { Id = d.Id,Name = d.Name }).ToListAsync();
             var tags = await _context.Tags.Select(t => new TagDTO { Id = t.Id, Name = t.Name }).ToListAsync();
+            var maxLen = await _context.Devices.MaxAsync(d => d.Diagonal);
 
-            return Ok(new FiltersSerializer { Types = types, Systems = systems, Departments = dep, Tags = tags });
+            return Ok(new FiltersSerializer { Types = types, Systems = systems, Departments = dep, Tags = tags, MaxLen = maxLen });
         }
 
-        [HttpGet("search")]
+        [HttpPost("search")]
         public async Task<ActionResult<IEnumerable<ShortDevicesListDTO>>> SearchDevice([FromBody] SearchRootObject root)
         {
             var url = $"{Request.Scheme}://{Request.Host}{Request.PathBase}/api/image/?filePath=";
@@ -43,6 +44,7 @@ namespace booking.Controllers
                                              .Where(d => root.Type == null || d.TypeId == root.Type)
                                              .Where(d => root.Os == null || d.OsId == root.Os)
                                              .Where(d => root.Department == null || d.DepartmentId == root.Department)
+                                             .Where(d => root.MinLen <= d.Diagonal && d.Diagonal <= root.MaxLen)
                                              .Select(d => new ShortDevicesListDTO
                                              {
                                                  Id = d.Id,

@@ -38,7 +38,6 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         return Task.CompletedTask;
     };
     options.Cookie.HttpOnly = true;
-    options.Cookie.SameSite = SameSiteMode.None;
 });
 
 builder.Services.AddAuthorization(opts =>
