@@ -9,6 +9,7 @@ using Visus.LdapAuthentication;
 using System.Security.Claims;
 using booking.DTO;
 using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Http;
 
 namespace booking.Controllers
 {
@@ -33,6 +34,13 @@ namespace booking.Controllers
             try
             {
                 var retval = _authService.Login(data.Username, data.Password);
+
+                if (retval == null)
+                {
+                    await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                    return Unauthorized(new { error = true, message = "User is not found" });
+                }
+
                 var user = await _context.Users.FirstOrDefaultAsync(user => user.Username == retval.Identity);
 
                 if (user == null)
@@ -60,7 +68,7 @@ namespace booking.Controllers
         [AllowAnonymous]
         public ActionResult Check()
         {
-            var authorize = isAuthorized();
+            var authorize = IsAuthorized();
             if (authorize)
                 return Ok(new { authorize = authorize });
             return Unauthorized(new { authorize = authorize });
@@ -69,6 +77,15 @@ namespace booking.Controllers
         [HttpGet("logout")]
         public async Task<ActionResult> Logout()
         {
+            if (HttpContext.Request.Cookies.Count > 0)
+            {
+                var siteCookies = HttpContext.Request.Cookies.Where(c => c.Key.Contains(".AspNetCore.") || c.Key.Contains("Microsoft.Authentication"));
+                foreach (var cookie in siteCookies)
+                {
+                    Response.Cookies.Delete(cookie.Key);
+                }
+            }
+
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 
             return Ok(new { message = "User successfully logged out" });
@@ -103,7 +120,7 @@ namespace booking.Controllers
             } 
         }
 
-        public bool isAuthorized()
+        public bool IsAuthorized()
         {
             if (HttpContext.User.Identity == null)
                 return false;

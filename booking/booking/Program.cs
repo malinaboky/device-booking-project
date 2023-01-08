@@ -37,6 +37,8 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         context.Response.StatusCode = 401;
         return Task.CompletedTask;
     };
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SameSite = SameSiteMode.None;
 });
 
 builder.Services.AddAuthorization(opts =>
