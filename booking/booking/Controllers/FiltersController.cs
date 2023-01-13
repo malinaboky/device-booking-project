@@ -35,7 +35,7 @@ namespace booking.Controllers
             return Ok(new FiltersSerializer { Types = types, Systems = systems, Departments = dep, Tags = tags });
         }
 
-        [HttpGet("search")]
+        [HttpPost("search")]
         public async Task<ActionResult<IEnumerable<ShortDevicesListDTO>>> SearchDevice([FromBody] SearchRootObject root)
         {
             var url = $"{Request.Scheme}://{Request.Host}{Request.PathBase}/api/image/?filePath=";
