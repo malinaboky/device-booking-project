@@ -39,7 +39,7 @@ namespace booking.Controllers
         [HttpPost("search")]
         public async Task<ActionResult<IEnumerable<ShortDevicesListDTO>>> SearchDevice([FromBody] SearchRootObject root)
         {
-            var url = $"{Request.Scheme}://{Request.Host}{Request.PathBase}/api/image/?filePath=";
+            var url = "/api/image/?filePath=";
             var list = await _context.Devices.Where(d => string.IsNullOrEmpty(root.Name) || d.Name.ToLower().Replace(" ", "").Contains(root.Name.ToLower().Replace(" ", "")))
                                              .Where(d => root.Type == null || d.TypeId == root.Type)
                                              .Where(d => root.Os == null || d.OsId == root.Os)

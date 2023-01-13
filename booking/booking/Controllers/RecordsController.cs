@@ -76,7 +76,7 @@ namespace booking.Controllers
         [HttpGet("user")]
         public async Task<ActionResult<IEnumerable<UserRecordsDTO>>> GetRecordsOfUser()
         {
-            var url = $"{Request.Scheme}://{Request.Host}{Request.PathBase}/api/image/?filePath=";
+            var url = "/api/image/?filePath=";
             if (HttpContext.User.Identity?.Name == null)
                 return NotFound(new { error = true, message = "User is not found" });
 

@@ -30,7 +30,7 @@ namespace booking.Controllers
         [HttpGet("info/short")]
         public async Task<ActionResult<IEnumerable<ShortDevicesListDTO>>> GetDevices()
         {
-            var url = $"{Request.Scheme}://{Request.Host}{Request.PathBase}/api/image/?filePath=";
+            var url = "/api/image/?filePath=";
 
             var list = await _context.Devices.Include(d => d.Os)
                                              .Include(d => d.Img)
@@ -55,7 +55,7 @@ namespace booking.Controllers
         [HttpGet("info/short/{id}")]
         public async Task<ActionResult<ShortDeviceCardDTO>> GetDeviceShort(int id)
         {
-            var url = $"{Request.Scheme}://{Request.Host}{Request.PathBase}/api/image/?filePath=";
+            var url = "/api/image/?filePath=";
 
             var device = await _context.Devices.Include(d => d.Os)
                                                .Include(d => d.Img)
@@ -79,7 +79,7 @@ namespace booking.Controllers
         [HttpGet("info/full/{id}")]
         public async Task<ActionResult<FullDeviceCardDTO>> GetDeviceFull(int id)
         {
-            var url = $"{Request.Scheme}://{Request.Host}{Request.PathBase}/api/image/?filePath=";
+            var url = "/api/image/?filePath=";
 
             var device = await _context.Devices.Include(d => d.Os)
                                                .Include(d => d.Img)
