@@ -111,7 +111,7 @@ namespace booking.Services
                     if (!Directory.Exists(path))
                         Directory.CreateDirectory(path);
 
-                    using (var fileStream = new FileStream(Path.Combine(path, $"{type}_{id}"), FileMode.Create))
+                    using (var fileStream = new FileStream(Path.Combine(path, $"{type}_{id}{Path.GetExtension(file.FileName)}"), FileMode.Create))
                     {
                         await file.CopyToAsync(fileStream);
                         newPath = Path.Combine(type, $"{type}_{id}{Path.GetExtension(file.FileName)}");
