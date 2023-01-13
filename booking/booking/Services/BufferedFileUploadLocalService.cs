@@ -107,14 +107,14 @@ namespace booking.Services
             {
                 if (file.Length > 0)
                 {
-                    var path = Path.GetFullPath(Path.Combine(_parentImageFolder,$"{type}s"));
+                    var path = Path.GetFullPath(Path.Combine(_parentImageFolder,type));
                     if (!Directory.Exists(path))
                         Directory.CreateDirectory(path);
 
-                    using (var fileStream = new FileStream(Path.Combine(path, $"{type}_{id}.jpeg"), FileMode.Create))
+                    using (var fileStream = new FileStream(Path.Combine(path, $"{type}_{id}"), FileMode.Create))
                     {
                         await file.CopyToAsync(fileStream);
-                        newPath = $"{type}s\\{type}_{id}.jpeg";
+                        newPath = Path.Combine(type, $"{type}_{id}{Path.GetExtension(file.FileName)}");
                     }
                 }
                 return newPath;
