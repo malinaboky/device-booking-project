@@ -75,7 +75,7 @@ namespace booking.Controllers
                 Username = user.Username,
                 ConnectLink = user.ConnectLink,
                 Status = user.Status,
-                Image = $"{url}{user.Img?.Path}"
+                Image = user.Img == null ? null : $"{url}{user.Img.Path}"
             };
 
             return Ok(info);

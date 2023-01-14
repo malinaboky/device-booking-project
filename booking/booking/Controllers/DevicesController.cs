@@ -72,7 +72,7 @@ namespace booking.Controllers
                 Os = device.Os == null ? null : (device.Os.Name),
                 Diagonal = device.Diagonal,
                 Department = device.Department == null ? null : new DepartmentDTO { Id = device.Department.Id, Name = device.Department.Name },
-                Image =$"{url}{device.Img?.Path}"
+                Image = device.Img == null ? null : $"{url}{device.Img.Path}"
             });
         }
 
@@ -99,7 +99,7 @@ namespace booking.Controllers
                 Type = device.Type?.Name,
                 Department = device.Department == null ? null : new DepartmentDTO { Id = device.Department.Id, Name = device.Department.Name },
                 Info = device.Info,
-                Image = $"{url}{device.Img?.Path}"
+                Image = device.Img == null ? null : $"{url}{device.Img.Path}"
             });
         }
 

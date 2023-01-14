@@ -15,7 +15,7 @@ namespace booking.Entities
         public TimeOnly TimeTo { get; set; }
 
         [ForeignKey("Department")]
-        public int DepartmentId { get; set; }
+        public int? DepartmentId { get; set; }
 
         [ForeignKey("Device")]
         public int DeviceId { get; set; }
@@ -23,7 +23,7 @@ namespace booking.Entities
         [ForeignKey("User")]
         public int UserId { get; set; }
 
-        public virtual Department Department { get; set; } = null!;
+        public virtual Department? Department { get; set; }
         public virtual Device Device { get; set; } = null!;
         public virtual User User { get; set; } = null!;
     }

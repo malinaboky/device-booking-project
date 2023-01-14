@@ -94,7 +94,7 @@ namespace booking.Controllers
                 Device = new DeviceInfo { 
                     Id = r.DeviceId,
                     Name = r.Device.Name,
-                    ImgPath = $"{url}{r.Device.Img?.Path}"
+                    ImgPath = r.Device.Img == null ? null : $"{url}{r.Device.Img.Path}"
                 },
                 Booked = r.Booked,
                 TimeFrom = r.TimeFrom.ToLongTimeString(),

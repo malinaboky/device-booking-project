@@ -157,7 +157,6 @@ namespace booking.Entities
                 entity.HasOne(d => d.Department)
                     .WithMany(p => p.Records)
                     .HasForeignKey(d => d.DepartmentId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("record_ibfk_3");
 
                 entity.HasOne(d => d.Device)

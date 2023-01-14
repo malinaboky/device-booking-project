@@ -69,7 +69,23 @@ namespace booking.Controllers
             }         
             if (list.Count() == 0)
                 return NotFound(new { error = true, message = "No content" });
-            return Ok(list);
+
+            switch(root.SortType)
+            {
+                case SortType.DateNew:
+                    list.Reverse();
+                    return Ok(list);
+                case SortType.Name:
+                    return Ok(list.OrderBy(d => d.Name));
+                case SortType.NameReverse:
+                    return Ok(list.OrderByDescending(d => d.Name));
+                case SortType.DiagonalMin:
+                    return Ok(list.OrderBy(d => d.Diagonal));
+                case SortType.DiagonalMax:
+                    return Ok(list.OrderByDescending(d => d.Diagonal));
+                default:
+                    return Ok(list);
+            }
         }
     }
 }
