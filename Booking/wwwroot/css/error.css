@@ -1,0 +1,25 @@
+﻿body {
+    scroll-behavior: smooth;
+    text-rendering: optimizeSpeed;
+    line-height: 1.5;
+    margin: 0;
+    display: block;
+    font-family: 'Open Sans', 'Helvetica Neue', 'Segoe UI', 'Calibri', 'Arial', sans-serif;
+}
+
+#panel {
+    width: 700px;
+    margin: 0 auto;
+    margin-top: 50px;
+}
+
+#code {
+    font-size: 140px;
+    color: cornflowerblue;
+    margin: 0;
+}
+
+#message {
+    font-size: 25px;
+    margin: 0;
+}

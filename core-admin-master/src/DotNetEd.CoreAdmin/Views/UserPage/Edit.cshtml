@@ -1,0 +1,100 @@
+﻿@using DotNetEd.CoreAdmin.ViewModels.User
+@using DotNetEd.CoreAdmin.ViewModels
+
+@model UserToEdit
+
+@{
+    ViewData["Page_Title"] = "Редактирование пользователя";
+    Layout = "_CoreAdminLayout";
+    SelectList departmentList = ViewBag.Department;
+}
+
+<link type="text/css" href="~/css/mainpage.css" rel="stylesheet" />
+<link type="text/css" href="~/css/basicstyle.css" rel="stylesheet" />
+<link type="text/css" href="~/css/style.css" rel="stylesheet" />
+
+<h1 class="display-4">Редактирование пользователя</h1>
+
+
+@using (Html.BeginForm("Edit", "UserPage", FormMethod.Post, new { enctype = "multipart/form-data", @class = "add-form" }))
+{
+    <input type="hidden" name="Id" value="@Model.Id"/>
+    <div class="form-row">
+        <div class="row-name">
+            <label>Имя</label>
+        </div>
+        <br />
+        <input type="text" class="field" asp-for="Firstname" name="Firstname" value="@Model.Firstname"/>
+        <br />
+        @Html.ValidationMessageFor(model => model.Firstname, "", new { @class = "text-danger" })
+    </div>
+    <br />
+    <div class="form-row">
+        <div class="row-name">
+            <label>Фамилия</label>
+        </div>
+        <br />
+        <input type="text" class="field" asp-for="Secondname" name="Secondname" value="@Model.Secondname" />
+        <br />
+        @Html.ValidationMessageFor(model => model.Secondname, "", new { @class = "text-danger" })
+    </div>
+    <br />
+    <div class="form-row">
+        <div class="row-name">
+            <label>Никнейм</label>
+        </div>
+        <br />
+        <input type="text" class="field" asp-for="Username" name="Username" value="@Model.Username" />
+        <br />
+        @Html.ValidationMessageFor(model => model.Username, "", new { @class = "text-danger"})
+    </div>
+    <br />
+    <div class="form-row">
+        <div class="row-name">
+            <label>Ссылка для связи</label>
+        </div>
+        <br />
+        <input type="text" class="field" asp-for="ConnectLink" name="ConnectLink" value="@Model.ConnectLink" />
+        <br />
+        @Html.ValidationMessageFor(model => model.ConnectLink, "", new { @class = "text-danger"})
+    </div>
+    <br />
+    <div class="form-row">
+        <div class="row-name">
+            <label>Статус</label>
+        </div>
+        <br />
+        @Html.DropDownList("Status", Html.GetEnumSelectList(typeof(StatusOfUser)), new { @class = "field" } )
+        <br />
+        @Html.ValidationMessageFor(model => model.Status, "", new { @class = "text-danger" })
+    </div>
+    <br />
+    <div class="form-row">
+        <div class="row-name">
+            <label>Департамент</label>
+        </div>
+        <br />
+        @Html.DropDownList("DepartmentId", departmentList, new { @class = "field"})
+        <br />
+        @Html.ValidationMessageFor(model => model.DepartmentId, "", new { @class = "text-danger" })
+    </div>
+    <br />
+    <div class="form-row">
+        <div class="row-name">
+            <label>Заблокирован</label>
+        </div>
+        <br />
+        @Html.CheckBoxFor(model => model.IsBlocked, Model.IsBlocked)
+    </div>
+    <br />
+    <div class="form-row">
+        <input type="file" name="Image" asp-for="Image" accept="image/*" data-allowed-file-extensions='["jpg", "png" , "jpeg"]' />
+        <br />
+        @Html.ValidationMessageFor(model => model.Image, "", new { @class = "text-danger" })
+    </div>
+    <br />
+    <div class="form-row submit-panel">
+        <button type="submit" class="btn btn-primary submit-button">Save</button>
+        @Html.ActionLink("No, go back", "Index", new { @class = "back-link" })
+    </div>
+}

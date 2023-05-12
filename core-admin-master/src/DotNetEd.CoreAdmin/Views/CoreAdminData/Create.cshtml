@@ -1,0 +1,28 @@
+﻿@{
+    ViewData["Page_Title"] = ViewBag.DbSetName;
+    Layout = "_CoreAdminLayout";
+}
+
+<h1 class="display-4">@ViewBag.DbSetName - Create</h1>
+
+
+@using (Html.BeginForm("CreateEntityPost",
+"CoreAdminData",
+new { id = ViewBag.DbSetName },
+FormMethod.Post, false,
+new { enctype = "multipart/form-data" }))
+{
+    @Html.Hidden("dbSetName", ViewBag.DbSetName, new { })
+
+    @Html.EditorForModel("DefaultEntity")
+
+    <div class="row">
+        <div class="col-md-12 px-4">
+            <button type="submit" class="btn btn-primary">Create</button>
+
+            @Html.ActionLink("No, go back", "Index", new { Id = ViewBag.DbSetName })
+
+        </div>
+    </div>
+
+}

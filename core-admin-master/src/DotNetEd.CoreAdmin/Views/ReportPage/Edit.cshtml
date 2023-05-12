@@ -1,0 +1,92 @@
+﻿@using DotNetEd.CoreAdmin
+@using DotNetEd.CoreAdmin.ViewModels
+@using DotNetEd.CoreAdmin.ViewModels.Report
+
+@model ReportToEdit
+
+@{
+    ViewData["Page_Title"] = "Редактирование репорта";
+    Layout = "_CoreAdminLayout";
+}
+
+<link type="text/css" href="~/css/readonlypage.css" rel="stylesheet" />
+
+
+<h1 class="display-4">Редактирование репорта</h1>
+
+<div class="report-panel">
+    @using (Html.BeginForm("Edit", "ReportPage", FormMethod.Post, new { enctype = "multipart/form-data", @class = "add-form" }))
+    {
+        <input type="hidden" name="Id" value="@Model.Id" />
+        <div class="form-row">
+            <div class="row-name">
+                <label>Название</label>
+            </div>
+            <br />
+            <p class="only-read field">@Model.Name</p>
+        </div>
+        <div class="form-row">
+            <div class="row-name">
+                <label>Статус</label>
+            </div>
+            <br />
+            @Html.DropDownList("Status", Html.GetEnumSelectList(typeof(StatusOfReports)), Model.Status.ToString(), new { @class = "field" } )
+            <br />
+            @Html.ValidationMessageFor(model => model.Status, "", new { @class = "text-danger" })
+        </div>
+        <br />
+        <div class="form-row">
+            <div class="row-name">
+                <label>Причина</label>
+            </div>
+            <br />
+            <p class="only-read field">@Model.Reason</p>
+        </div>
+        <div class="form-row">
+            <div class="row-name">
+                <label>Описание</label>
+            </div>
+            <br />
+            <p class="only-read field">@Model.Description</p>
+        </div>
+        <div class="form-row">
+            <div class="row-name">
+                <label>Пользователь</label>
+            </div>
+            <br />
+            <p class="only-read field">
+                ID: @Model.UserId <br />
+                Username: @Model.UserName</p>
+        </div>
+        <div class="form-row">
+            <div class="row-name">
+                <label>Находится в рассмотрении у:</label>
+            </div>
+            <br />
+            @Html.DropDownListFor(model => model.ReviewerId, ViewBag.ReviewerId as SelectList, new { @class = "field"})
+            <br />
+        </div>
+        <br />
+        <div class="form-row">
+            <div class="row-name">
+                <label>Изображения</label>
+            </div>
+            <div class="images">
+                @foreach (var path in Model.Images)
+                {
+                    var newPath = "http://localhost:5294" + path;
+                    <a title="Нажмите, для просмотра в полном размере" href="#" onclick="imageOnClick('@newPath')">
+                        <img src="@newPath" height="100" />
+                    </a>
+                }
+            </div>
+        </div>
+        <br />
+        <div class="form-row submit-panel">
+            <button type="submit" class="btn btn-primary submit-button">Save</button>
+            @Html.ActionLink("No, go back", "Index", new { @class = "back-link" })
+        </div>
+    }
+</div>
+
+<script src="~/js/site.js"></script>

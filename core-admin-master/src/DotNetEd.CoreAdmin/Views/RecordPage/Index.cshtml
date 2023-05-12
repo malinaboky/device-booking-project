@@ -1,0 +1,79 @@
+﻿@using DotNetEd.CoreAdmin
+@using DotNetEd.CoreAdmin.ViewModels
+@using DotNetEd.CoreAdmin.ViewModels.Record
+@using Microsoft.AspNetCore.Html
+@using NonFactors.Mvc.Grid
+@using System.Linq.Expressions
+@using Microsoft.EntityFrameworkCore
+@using System.Data
+
+@model RecordsList
+
+@{
+    ViewData["Page_Title"] = "Записи";
+    Layout = "_CoreAdminLayout";
+
+    var dic = new Dictionary<long, long>();
+    for (var i = 0; i < Model.Records.Count(); i++)
+        dic.Add(Model.Records[i].Id, (long)i);
+}
+
+<h1 class="display-4">Записи</h1>
+
+@using (Html.BeginForm("DeleteAmountPost", "RecordPage", FormMethod.Post, new { @class = "add-form" }))
+{
+    <div class="row">
+        <div class="col-lg-12 my-3">
+            <button type='submit' class='btn btn-primary'>Delete selected</button>
+        </div>
+    </div>
+
+    @(Html.Grid(Model.Records)
+                            .Build((columns) =>
+                            {
+                                columns.Add<long>(item => item.Id)
+                                       .Titled(new PropertyForFiltering { Able = true, Name = "ID" });
+                                columns.Add<bool>(item => item.IsBooked)
+                                       .Titled(new PropertyForFiltering { Able = true, Name = "Is booked" });
+                                columns.Add<DateOnly>(item => item.Date)
+                                       .Titled(new PropertyForFiltering { Able = true, Name = "Date" });
+                                columns.Add<TimeOnly>(item => item.StartTime)
+                                       .Titled(new PropertyForFiltering { Able = true, Name = "Start time" });
+                                columns.Add<TimeOnly>(item => item.EndTime)
+                                       .Titled(new PropertyForFiltering { Able = true, Name = "End time" });
+                                columns.Add<long>(item => item.UserId)
+                                       .Titled(new PropertyForFiltering { Able = true, Name = "User ID" });
+                                columns.Add<long>(item => item.DeviceId)
+                                       .Titled(new PropertyForFiltering { Able = true, Name = "Device ID" });
+
+                                columns.Add(item => Html.ActionLink("Edit", "Edit", new { Id = item.Id }));
+                                columns.Add(item => Html.ActionLink("Delete", "Delete", new { Id = item.Id }));
+                                columns.Add(item => Html.CheckBoxFor(y => y.Records[(int)dic[item.Id]].Selected, new { @id = $"Selected{dic[item.Id]}", @onclick = $"turnSelectAll({dic[item.Id]})" }))
+                                    .Titled(new HtmlString("<input type=\"checkbox\" id=\"SelectAll\" onclick=\"changeAll()\">"));
+                            }
+                        )
+                    .Using(GridFilterMode.Header)
+                    .Empty("No data found")
+                    .Filterable()
+                    .Sortable()
+                    .Pageable()
+                )
+    @for (var i = 0; i < Model.Records.Count(); i++)
+    {
+        @Html.HiddenFor(y => y.Records[i].Id)
+        ;
+    }
+}
+
+@section Scripts
+    {
+    <script src="~/js/jquery-3.5.0.js"></script>
+    <script src="~/js/site.js"></script>
+    <script>
+        document.querySelectorAll(".mvc-grid").forEach(element => new MvcGrid(element));
+    </script>
+}
+    <link rel="stylesheet" href="~/css/style.css">
+
+
+

@@ -1,0 +1,51 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <PropertyGroup>
+    <TargetFrameworks>net6.0</TargetFrameworks>
+    <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+    <PreserveCompilationContext>false</PreserveCompilationContext>
+    <SuppressDependenciesWhenPacking>false</SuppressDependenciesWhenPacking>
+    <PackageId>CoreAdmin</PackageId>
+    <PackageVersion>2.0.0</PackageVersion>
+    <Description>Automagically add an Admin Panel to your .NET 6 web app.</Description>
+    <Title>Core Admin Panel for ASP.NET Core</Title>
+    <Authors>edandersen</Authors>
+    <Copyright>Copyright ©2021 Ed Andersen</Copyright>
+    <PackageProjectUrl>https://github.com/edandersen/core-admin</PackageProjectUrl>
+    <PackageLicenseExpression>LGPL-3.0-or-later</PackageLicenseExpression>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.7" />
+    <PackageReference Include="NonFactors.Grid.Core.Mvc6" Version="6.2.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Areas\coreadmin\Views\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Database\Database.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="Views\UserPage\Create.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="Views\UserPage\Block.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Update="Views\UserPage\Edit.cshtml">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
+
+</Project>

@@ -1,0 +1,77 @@
+﻿.add-form {
+    max-width: 90%;
+    min-width: 80px;
+    min-width: 50%;
+    padding-top: 30px;
+    padding-bottom: 20px;
+}
+
+.field {
+    font-size: 14px;
+    min-height: 40px;
+    max-width: 90%;
+    min-width: 150px;
+    border: 1px solid;
+    border-radius: 0.25rem;
+    outline: none;
+    padding-left: 10px;
+    padding-right: 10px;
+    cursor: pointer;
+    margin-top: 5px;
+}
+
+.only-read {
+    word-break: break-all;
+    padding: 8px 10px 8px 10px;
+    margin-top: 5px;
+    cursor: text;
+}
+
+div.form-row {
+    margin-left: 20px;
+}
+
+.form-button {
+    text-align: center;
+}
+
+.row-name {
+    height: 20px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.row-name label {
+    font-size: 20px;
+}
+
+.text-danger {
+    width: 100%;
+}
+
+#error {
+    margin-top: 5px;
+}
+
+div.submit-panel {
+    align-items: center;
+    width: 100%;
+}
+
+.submit-button {
+    margin-right: 20px;
+}
+
+.hide {
+    display: none;
+}
+
+.images {
+    margin-top: 5px;
+}
+
+.images img {
+    margin-right: 2px;
+    margin-top: 2px;
+}

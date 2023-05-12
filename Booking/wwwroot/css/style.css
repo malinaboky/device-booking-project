@@ -1,0 +1,33 @@
+﻿.submit {
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+}
+
+.delete-panel {
+    width: 50px;
+    display: flex;
+    justify-content: space-around;
+}
+
+.column {
+    overflow-wrap: anywhere;
+    max-width: 95%;
+    max-height: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.column:after {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
