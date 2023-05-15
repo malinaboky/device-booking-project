@@ -95,8 +95,8 @@ namespace Database.Controllers
         {
             var claims = new List<Claim>
             {
-                new Claim(ClaimsIdentity.DefaultNameClaimType, user.Username),
-                new Claim(ClaimsIdentity.DefaultRoleClaimType, user.Status)
+                new Claim(ClaimsIdentity.DefaultNameClaimType, user.Id.ToString()),
+                new Claim(ClaimsIdentity.DefaultRoleClaimType, user.Status)             
             };
             ClaimsIdentity id = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 

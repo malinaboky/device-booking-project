@@ -16,7 +16,7 @@ namespace Database.Controllers
 {
     [Route("api/device")]
     [ApiController]
-    [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
+    //[Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
     [EnableCors("CorsPolicy")]
     public class DevicesController : ControllerBase
     {
@@ -102,89 +102,6 @@ namespace Database.Controllers
             });
         }
 
-        [Authorize(Policy = "OnlyForAdmin")]
-        [HttpPost("add")]
-        public async Task<ActionResult> PostDevice([FromBody] PostDeviceDTO device)
-        {
-            var type = await _context.Types.FirstOrDefaultAsync(t => device.Type == null || t.Name.ToLower() == device.Type.ToLower());
-            var system = await _context.Os.FirstOrDefaultAsync(os => device.Os == null || os.Name.ToLower() == device.Os.ToLower());
-            var department = await _context.Departments.FirstOrDefaultAsync(d => device.Department == null || d.Name.ToLower() == device.Department.ToLower());
 
-            if (type == null && device.Type != null)
-            {
-                type = new Type { Name = device.Type };
-                _context.Types.Add(type);
-            }
-
-            if (system == null && device.Os != null)
-            {
-                system = new Os { Name = device.Os };
-                _context.Os.Add(system);
-            }
-
-            if (department == null && device.Department != null)
-            {
-                department = new Department { Name = device.Department };
-                _context.Departments.Add(department);
-            }
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch(DbUpdateException)
-            {
-                return BadRequest(new { error = true, message = "Error saving to database" });
-            }
-            var newDevice = new Device
-            {
-                Name = device.Name,
-                Diagonal = device.Diagonal,
-                Resolution = device.Resolution,
-                Class = device.Class,
-                Type = type,
-                Department = department,
-                Os = system
-            };
-
-            _context.Devices.Add(newDevice);
-            try
-            {         
-                await _context.SaveChangesAsync();
-            }
-            catch(DbUpdateException)
-            {
-                return BadRequest(new { error = true, message = "Error saving to database" });
-            }
-            return Ok(new {id = newDevice.Id}); 
-        }
-
-        [Authorize(Policy = "OnlyForAdmin")]
-        [HttpDelete("delete/{id}")]
-        public async Task<ActionResult> DeleteDevice(int id)
-        {
-            var device = await _context.Devices.Include(d => d.Records).FirstOrDefaultAsync(d => d.Id == id);
-
-            if (device == null)
-                return NotFound(new { error = true, message = "Device is not found" });
-
-            var isBooked = device.Records.Any(r => r.Booked);
-            if (isBooked)
-                return BadRequest(new { error = true, message = "Device is booked now" });
-           
-            _context.Records.RemoveRange(_context.Records.Where(r => r.DeviceId == device.Id));
-            _context.TagInfos.RemoveRange(_context.TagInfos.Where(r => r.DeviceId == device.Id));
-            _context.Devices.Remove(device);
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch(DbUpdateException)
-            {
-                return BadRequest(new { error = true, message = "Error saving to database" });
-            }
-
-            return Ok(new {message = "Device deleted"});
-        }
     }
 }

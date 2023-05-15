@@ -1,4 +1,5 @@
 ﻿document.addEventListener("DOMContentLoaded", countCheckboxes);
+document.addEventListener("DOMContentLoaded", truncate);
 
 function countCheckboxes() {
     lenOfCheckboxes = $("input:checkbox[id^='Selected']").length;
@@ -44,3 +45,11 @@ function imageOnClick(path) {
 function removeSelected() {
     document.getElementById("ReviewerId").selectedIndex = -1;
 }
+
+function truncate() {
+    var texts = document.getElementsByClassName("column");
+    for (let i in texts) {
+        if (texts[i].innerHTML.length > 250)
+            texts[i].innerHTML = texts[i].innerText.substring(0, 250) + '...';
+    }
+};

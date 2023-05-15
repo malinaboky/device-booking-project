@@ -6,7 +6,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
-
+using Booking.DTO;
+using Microsoft.Data.SqlClient.Server;
 
 namespace Database.Controllers
 {
@@ -16,17 +17,114 @@ namespace Database.Controllers
     [EnableCors("CorsPolicy")]
     public class RecordsController : ControllerBase
     {
-        private readonly DeviceBookingContext _context;
+        private readonly DeviceBookingContext context;
 
         public RecordsController(DeviceBookingContext context)
         {
-            _context = context;
+            this.context = context;
+        }
+
+        [HttpGet("calendar/device")]
+        public async Task<IActionResult> GetRecordsOfDeviceForCalendar([FromBody] InfoOfRecordsForCalendar recordsInfo)
+        {
+            var device = await context.Devices.Include(d => d.Records).FirstOrDefaultAsync(d => d.Id == recordsInfo.DeviceId);
+            var timeFrom = DateOnly.FromDateTime(DateTime.ParseExact(recordsInfo.Start, "yyyy-MM-ddTHH:mm:ss",
+                                       System.Globalization.CultureInfo.InvariantCulture));
+            var timeTo = DateOnly.FromDateTime(DateTime.ParseExact(recordsInfo.End, "yyyy-MM-ddTHH:mm:ss",
+                                       System.Globalization.CultureInfo.InvariantCulture));
+
+            if (device == null)
+                return NotFound(new { error = true, message = "Device is not found" });
+
+            return Ok(device.Records.Where(r => r.Date >= timeFrom && r.Date <= timeTo)
+                                    .Select(r => 
+                                        new {
+                                            id = r.Id,
+                                            title = device.Name,
+                                            start = r.Date.ToDateTime(r.TimeFrom).ToString("yyyy-MM-ddTHH:mm:ss"),
+                                            end = r.Date.ToDateTime(r.TimeTo).ToString("yyyy-MM-ddTHH:mm:ss"),
+                                            booked = r.Booked,
+                                            deviceId = device.Id
+                                        }));
+        }
+
+        [HttpGet("calendar/user")]
+        public async Task<IActionResult> GetRecordsOfUserForCalendar([FromBody] InfoOfRecordsCalendarUser recordsInfo)
+        {
+            if (HttpContext.User.Identity?.Name == null)
+                return NotFound(new { error = true, message = "User is not found" });
+
+            var userId = long.Parse(HttpContext.User.Identity.Name);
+            var user = await context.Users.FindAsync(userId);
+
+            if (user == null)
+                return NotFound(new { error = true, message = "User is not found" });
+
+            var records = await context.Records.Include(r => r.Device).Where(r => r.UserId == user.Id).ToListAsync();
+
+            var timeFrom = DateOnly.FromDateTime(DateTime.ParseExact(recordsInfo.Start, "yyyy-MM-ddTHH:mm:ss",
+                                       System.Globalization.CultureInfo.InvariantCulture));
+            var timeTo = DateOnly.FromDateTime(DateTime.ParseExact(recordsInfo.End, "yyyy-MM-ddTHH:mm:ss",
+                                       System.Globalization.CultureInfo.InvariantCulture));            
+
+            return Ok(records.Where(r => r.Date >= timeFrom && r.Date <= timeTo)
+                                    .Select(r =>
+                                        new {
+                                            id = r.Id,
+                                            title = r.Device.Name,
+                                            start = r.Date.ToDateTime(r.TimeFrom).ToString("yyyy-MM-ddTHH:mm:ss"),
+                                            end = r.Date.ToDateTime(r.TimeTo).ToString("yyyy-MM-ddTHH:mm:ss"),
+                                            booked = r.Booked,
+                                            deviceId = r.DeviceId
+                                        }));
+        }
+
+        [HttpPost("calendar/change")]
+        public async Task<IActionResult> ChangeRecordOfUser([FromBody] ChangedRecordInfo recordInfo)
+        {
+            if (HttpContext.User.Identity?.Name == null)
+                return NotFound(new { error = true, message = "User is not found" });
+
+            var userId = long.Parse(HttpContext.User.Identity.Name);
+            var user = await context.Users.FindAsync(userId);
+
+            if (user == null)
+                return NotFound(new { error = true, message = "User is not found" });
+
+            var record = await context.Records.FindAsync(recordInfo.RecordId);
+
+            if (record == null)
+                return NotFound(new { error = true, message = "Record is not found" });
+
+            var timeFrom = DateTime.ParseExact(recordInfo.Start, "yyyy-MM-ddTHH:mm:ss",
+                                       System.Globalization.CultureInfo.InvariantCulture);
+            var timeTo = DateTime.ParseExact(recordInfo.End, "yyyy-MM-ddTHH:mm:ss",
+                                       System.Globalization.CultureInfo.InvariantCulture);
+
+            if (timeFrom.Date != timeTo.Date)
+                return BadRequest(new { error = true, message = "Device can be booked only for one day" });
+
+            record.Date = DateOnly.FromDateTime(timeFrom);
+            record.TimeFrom = TimeOnly.FromDateTime(timeFrom);
+            record.TimeTo = TimeOnly.FromDateTime(timeTo);
+
+            context.Entry(record).State = EntityState.Modified;
+
+            try
+            {
+                await context.SaveChangesAsync();
+                return Ok();
+            }
+            catch (DbUpdateException)
+            {
+                return BadRequest(new {error = true, message = "Error saving to database" });
+            }
         }
 
         [HttpGet("history/{deviceId}")]
         public async Task<ActionResult<IEnumerable<RecordsDeviceCardDTO>>> GetRecordsOfDevice(int deviceId)
         {
-            var records = await _context.Records.Include(r => r.User)
+            var records = await context.Records.Include(r => r.User)
                                                 .Where(r => r.DeviceId == deviceId)
                                                 .ToListAsync();
 
@@ -55,7 +153,7 @@ namespace Database.Controllers
 
             var user = HttpContext.User.Identity.Name;
 
-            var records = await _context.Records.Include(r => r.Device)
+            var records = await context.Records.Include(r => r.Device)
                                                 .Include(r => r.User)
                                                 .Where(r => r.User.Username == user)
                                                 .ToListAsync();
@@ -82,7 +180,7 @@ namespace Database.Controllers
 
             var user = HttpContext.User.Identity.Name;
 
-            var records = await _context.Records.Include(r => r.Device)
+            var records = await context.Records.Include(r => r.Device)
                                                 .Include(r => r.User)
                                                 .Include(r => r.Device.Image)
                                                 .Where(r => r.User.Username == user && r.Booked)
@@ -120,13 +218,13 @@ namespace Database.Controllers
 
             var userName = HttpContext.User.Identity.Name;
 
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == userName);
+            var user = await context.Users.FirstOrDefaultAsync(u => u.Username == userName);
 
             if (user == null)
                 return NotFound(new { error = true, message = "User is not found" });
 
-            var device = await _context.Devices.Include(d => d.Department).FirstOrDefaultAsync(d => d.Id == newRecord.DeviceId);
-            var oldRecord = await _context.Records.Include(r => r.User)
+            var device = await context.Devices.Include(d => d.Department).FirstOrDefaultAsync(d => d.Id == newRecord.DeviceId);
+            var oldRecord = await context.Records.Include(r => r.User)
                                                   .Where(r => r.Date == convertRecord.Date)
                                                   .FirstOrDefaultAsync(r => !(r.TimeTo < convertRecord.TimeFrom || r.TimeFrom > convertRecord.TimeTo) && r.Booked);
 
@@ -151,10 +249,10 @@ namespace Database.Controllers
                 Department = device.Department
             };
 
-            _context.Records.Add(record);
+            context.Records.Add(record);
             try
             {
-                await _context.SaveChangesAsync();
+                await context.SaveChangesAsync();
             }
             catch (DbUpdateException)
             {
@@ -166,10 +264,10 @@ namespace Database.Controllers
         [HttpPut("pass")]
         public async Task<ActionResult> PassRecord([FromBody] RecordDTO recordInfo)
         {
-            var record = await _context.Records.Include(r => r.Device) 
+            var record = await context.Records.Include(r => r.Device) 
                                                .FirstOrDefaultAsync(r => r.Id == recordInfo.RecordId);
 
-            var department = await _context.Departments.FindAsync(recordInfo.DepartmentId);
+            var department = await context.Departments.FindAsync(recordInfo.DepartmentId);
 
             if (record == null)
                 return NotFound(new { error = true, message = "Record is not found" });
@@ -180,12 +278,12 @@ namespace Database.Controllers
             record.Booked = false;
             record.Device.Department = department;
 
-            _context.Entry(record).State = EntityState.Modified;
-            _context.Entry(record.Device).State = EntityState.Modified;
+            context.Entry(record).State = EntityState.Modified;
+            context.Entry(record.Device).State = EntityState.Modified;
 
             try
             {
-                await _context.SaveChangesAsync();
+                await context.SaveChangesAsync();
             }
             catch (DbUpdateException)
             {
@@ -197,18 +295,18 @@ namespace Database.Controllers
         [HttpPost("cancel/{recordId}")]
         public async Task<ActionResult> CancelRecord(int recordId)
         {
-            var record = await _context.Records.FindAsync(recordId);
+            var record = await context.Records.FindAsync(recordId);
 
             if (record == null)
                 return NotFound(new { error = true, message = "Record is not found" });
 
             record.Booked = false;
 
-            _context.Entry(record).State = EntityState.Modified;
+            context.Entry(record).State = EntityState.Modified;
 
             try
             {
-                await _context.SaveChangesAsync();
+                await context.SaveChangesAsync();
             }
             catch (DbUpdateException)
             {
@@ -220,16 +318,16 @@ namespace Database.Controllers
         [HttpDelete("delete/{recordId}")]
         public async Task<IActionResult> DeleteRecord(int recordId)
         {
-            var record = await _context.Records.FindAsync(recordId);
+            var record = await context.Records.FindAsync(recordId);
 
             if (record == null)
                 return NotFound(new { error = true, message = "Record is not found" });
 
-            _context.Records.Remove(record);
+            context.Records.Remove(record);
 
             try
             {
-                await _context.SaveChangesAsync();
+                await context.SaveChangesAsync();
             }
             catch (DbUpdateException)
             {

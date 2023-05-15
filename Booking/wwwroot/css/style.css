@@ -20,14 +20,6 @@ input[type="checkbox"] {
 .column {
     overflow-wrap: anywhere;
     max-width: 95%;
-    max-height: 180px;
     overflow: hidden;
     text-overflow: ellipsis;
-}
-
-.column:after {
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
 }
