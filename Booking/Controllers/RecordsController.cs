@@ -28,10 +28,11 @@ namespace Database.Controllers
         public async Task<IActionResult> GetRecordsOfDeviceForCalendar([FromBody] InfoOfRecordsForCalendar recordsInfo)
         {
             var device = await context.Devices.Include(d => d.Records).FirstOrDefaultAsync(d => d.Id == recordsInfo.DeviceId);
-            var timeFrom = DateOnly.FromDateTime(DateTime.ParseExact(recordsInfo.Start, "yyyy-MM-ddTHH:mm:ss",
-                                       System.Globalization.CultureInfo.InvariantCulture));
-            var timeTo = DateOnly.FromDateTime(DateTime.ParseExact(recordsInfo.End, "yyyy-MM-ddTHH:mm:ss",
-                                       System.Globalization.CultureInfo.InvariantCulture));
+
+            var timeFrom = DateOnly.FromDateTime(DateTime.Parse(recordsInfo.Start, null,
+                                       System.Globalization.DateTimeStyles.RoundtripKind));
+            var timeTo = DateOnly.FromDateTime(DateTime.Parse(recordsInfo.End, null,
+                                       System.Globalization.DateTimeStyles.RoundtripKind));
 
             if (device == null)
                 return NotFound(new { error = true, message = "Device is not found" });
@@ -41,8 +42,8 @@ namespace Database.Controllers
                                         new {
                                             id = r.Id,
                                             title = device.Name,
-                                            start = r.Date.ToDateTime(r.TimeFrom).ToString("yyyy-MM-ddTHH:mm:ss"),
-                                            end = r.Date.ToDateTime(r.TimeTo).ToString("yyyy-MM-ddTHH:mm:ss"),
+                                            start = r.Date.ToDateTime(r.TimeFrom).ToString("yyyy-MM-ddThh:mm:ss.SSSZ"),
+                                            end = r.Date.ToDateTime(r.TimeTo).ToString("yyyy-MM-ddThh:mm:ss.SSSZ"),
                                             booked = r.Booked,
                                             deviceId = device.Id
                                         }));
@@ -62,18 +63,18 @@ namespace Database.Controllers
 
             var records = await context.Records.Include(r => r.Device).Where(r => r.UserId == user.Id).ToListAsync();
 
-            var timeFrom = DateOnly.FromDateTime(DateTime.ParseExact(recordsInfo.Start, "yyyy-MM-ddTHH:mm:ss",
-                                       System.Globalization.CultureInfo.InvariantCulture));
-            var timeTo = DateOnly.FromDateTime(DateTime.ParseExact(recordsInfo.End, "yyyy-MM-ddTHH:mm:ss",
-                                       System.Globalization.CultureInfo.InvariantCulture));            
+            var timeFrom = DateOnly.FromDateTime(DateTime.Parse(recordsInfo.Start, null,
+                                       System.Globalization.DateTimeStyles.RoundtripKind));
+            var timeTo = DateOnly.FromDateTime(DateTime.Parse(recordsInfo.End, null,
+                                       System.Globalization.DateTimeStyles.RoundtripKind));            
 
             return Ok(records.Where(r => r.Date >= timeFrom && r.Date <= timeTo)
                                     .Select(r =>
                                         new {
                                             id = r.Id,
                                             title = r.Device.Name,
-                                            start = r.Date.ToDateTime(r.TimeFrom).ToString("yyyy-MM-ddTHH:mm:ss"),
-                                            end = r.Date.ToDateTime(r.TimeTo).ToString("yyyy-MM-ddTHH:mm:ss"),
+                                            start = r.Date.ToDateTime(r.TimeFrom).ToString("yyyy-MM-ddTHH:mm:ss.fffZ"),
+                                            end = r.Date.ToDateTime(r.TimeTo).ToString("yyyy-MM-ddTHH:mm:ss.fffZ"),
                                             booked = r.Booked,
                                             deviceId = r.DeviceId
                                         }));
@@ -96,10 +97,10 @@ namespace Database.Controllers
             if (record == null)
                 return NotFound(new { error = true, message = "Record is not found" });
 
-            var timeFrom = DateTime.ParseExact(recordInfo.Start, "yyyy-MM-ddTHH:mm:ss",
-                                       System.Globalization.CultureInfo.InvariantCulture);
-            var timeTo = DateTime.ParseExact(recordInfo.End, "yyyy-MM-ddTHH:mm:ss",
-                                       System.Globalization.CultureInfo.InvariantCulture);
+            var timeFrom = DateTime.Parse(recordInfo.Start, null,
+                                       System.Globalization.DateTimeStyles.RoundtripKind);
+            var timeTo = DateTime.Parse(recordInfo.End, null,
+                                       System.Globalization.DateTimeStyles.RoundtripKind);
 
             if (timeFrom.Date != timeTo.Date)
                 return BadRequest(new { error = true, message = "Device can be booked only for one day" });
