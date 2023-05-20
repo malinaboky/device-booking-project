@@ -45,7 +45,7 @@
                                    .Titled(new PropertyForFiltering {Name = "Image"});
 
                         columns.Add(item => Html.ActionLink("Edit", "Edit", new { Id = item.Id }));
-                        columns.Add(item => Html.ActionLink("Block", "Block", new { Id = item.Id }));
+                        columns.Add(item => Html.ActionLink("Block", "BlockPost", new { Id = item.Id }));
                         columns.Add(item => Html.CheckBoxFor(y => y.Users[(int)dic[item.Id]].Selected, new { @id = $"Selected{dic[item.Id]}", @onclick = $"turnSelectAll({dic[item.Id]})" }))
                                    .Titled(new HtmlString("<input type=\"checkbox\" id=\"SelectAll\" onclick=\"changeAll()\">"));
                     }

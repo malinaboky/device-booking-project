@@ -24,7 +24,7 @@ namespace Database.Controllers
             this.context = context;
         }
 
-        [HttpGet("calendar/device")]
+        [HttpPost("calendar/device")]
         public async Task<IActionResult> GetRecordsOfDeviceForCalendar([FromBody] InfoOfRecordsForCalendar recordsInfo)
         {
             var device = await context.Devices.Include(d => d.Records).FirstOrDefaultAsync(d => d.Id == recordsInfo.DeviceId);
@@ -48,7 +48,7 @@ namespace Database.Controllers
                                         }));
         }
 
-        [HttpGet("calendar/user")]
+        [HttpPost("calendar/user")]
         public async Task<IActionResult> GetRecordsOfUserForCalendar([FromBody] InfoOfRecordsCalendarUser recordsInfo)
         {
             if (HttpContext.User.Identity?.Name == null)

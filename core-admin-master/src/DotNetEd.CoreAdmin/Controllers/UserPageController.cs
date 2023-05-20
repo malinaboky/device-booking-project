@@ -26,19 +26,8 @@ namespace DotNetEd.CoreAdmin.Controllers
         {
             return View(new UserList { Users = await userService.GetUsersFromDB()});
         }
+
         [HttpGet]
-        public async Task<IActionResult> Block(long id)
-        {
-            var user = await userService.GetUserToDelete(id);
-
-            if (user == null)
-                return NotFound(new { error = true, message = "User is not found" });
-
-            return View(user);
-        }
-
-        [HttpPost]
-        [IgnoreAntiforgeryToken]
         public async Task<IActionResult> BlockPost(long id)
         {
             var message = await userService.BlockUser(id);
