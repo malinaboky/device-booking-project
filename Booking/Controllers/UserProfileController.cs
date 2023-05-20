@@ -29,8 +29,9 @@ namespace Database.Controllers
             if (HttpContext.User.Identity?.Name == null)
                 return NotFound(new { error = true, message = "User is not found" });
 
-            var name = HttpContext.User.Identity.Name;
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == name);
+            var id = long.Parse(HttpContext.User.Identity.Name);
+
+            var user = await _context.Users.FindAsync(id);
 
             if (user == null)
                 return NotFound(new { error = true, message = "User is not found" });
@@ -60,8 +61,9 @@ namespace Database.Controllers
             if (HttpContext.User.Identity?.Name == null)
                 return NotFound(new { error = true, message = "User is not found" });
 
-            var name = HttpContext.User.Identity.Name;
-            var user = await _context.Users.Include(u => u.Image).FirstOrDefaultAsync(u => u.Username == name);
+            var id = long.Parse(HttpContext.User.Identity.Name);
+
+            var user = await _context.Users.Include(u => u.Image).FirstOrDefaultAsync(u => u.Id == id);
 
             if (user == null)
             {

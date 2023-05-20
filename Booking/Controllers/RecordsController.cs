@@ -151,11 +151,11 @@ namespace Database.Controllers
             if (HttpContext.User.Identity?.Name == null)
                 return NotFound(new { error = true, message = "User is not found" });
 
-            var user = HttpContext.User.Identity.Name;
+            var userId = long.Parse(HttpContext.User.Identity.Name);
 
             var records = await context.Records.Include(r => r.Device)
                                                 .Include(r => r.User)
-                                                .Where(r => r.User.Username == user)
+                                                .Where(r => r.User.Id == userId)
                                                 .ToListAsync();
 
             var list = records.Select(r => new UserRecordsDTO {
@@ -178,12 +178,12 @@ namespace Database.Controllers
             if (HttpContext.User.Identity?.Name == null)
                 return NotFound(new { error = true, message = "User is not found" });
 
-            var user = HttpContext.User.Identity.Name;
+            var userId = long.Parse(HttpContext.User.Identity.Name);
 
             var records = await context.Records.Include(r => r.Device)
                                                 .Include(r => r.User)
                                                 .Include(r => r.Device.Image)
-                                                .Where(r => r.User.Username == user && r.Booked)
+                                                .Where(r => r.User.Id == userId && r.Booked)
                                                 .ToListAsync();
 
             var list = records.Select(r => new UserRecordsDTO
@@ -213,12 +213,13 @@ namespace Database.Controllers
                 TimeFrom = TimeOnly.FromDateTime(newRecord.TimeFrom),
                 TimeTo = TimeOnly.FromDateTime(newRecord.TimeTo)
             };
+
             if (HttpContext.User.Identity?.Name == null)
                 return NotFound(new { error = true, message = "User is not found" });
 
-            var userName = HttpContext.User.Identity.Name;
+            var userId = long.Parse(HttpContext.User.Identity.Name);
 
-            var user = await context.Users.FirstOrDefaultAsync(u => u.Username == userName);
+            var user = await context.Users.FirstOrDefaultAsync(u => u.Id == userId);
 
             if (user == null)
                 return NotFound(new { error = true, message = "User is not found" });
