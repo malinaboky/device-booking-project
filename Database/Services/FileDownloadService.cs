@@ -15,20 +15,20 @@ namespace Database.Services
             _parentImageFolder = configuration["RootFolder:DefaultImagePath"];
         }
 
-        public string GetFileToDownload(string? filePath)
+        public string? GetFileToDownload(string? filePath)
         {
             if (filePath == null)
-                return Path.Combine(_parentImageFolder, "default.png");
+                return null;
             try
             {
                 var fullPath = Path.Combine(_parentImageFolder, filePath);
                 if (File.Exists(fullPath))
                     return fullPath;
-                return Path.Combine(_parentImageFolder, "default.png");
+                return null;
             }
             catch(Exception)
             {
-                return "";
+                return null;
             }
         }
     }

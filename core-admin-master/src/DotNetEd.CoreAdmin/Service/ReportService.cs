@@ -17,12 +17,15 @@ namespace DotNetEd.CoreAdmin.Service
     {
         private readonly DeviceBookingContext context;
         private readonly FileUploadLocalService uploadService;
+        private readonly FileDownloadService downloadService;
 
         public ReportService(DeviceBookingContext context, 
-            FileUploadLocalService uploadService)
+            FileUploadLocalService uploadService,
+            FileDownloadService downloadService)
         {
             this.context = context;
             this.uploadService = uploadService;
+            this.downloadService = downloadService;
         }
 
         public async Task<string> DeleteReport(long id)
@@ -110,7 +113,8 @@ namespace DotNetEd.CoreAdmin.Service
                 UserId = report.UserId,
                 UserName = $"{report.User.Firstname} {report.User.Secondname}",
                 ReviewerId = report.ReviewerId,
-                Images = imageInfos.Select(i => "/api/image/newtab/?filePath=" + i.Image.Path).ToList()
+                Images = imageInfos.Select(i => 
+                downloadService.GetFileToDownload(i.Image.Path) == null ? "default.png" : "/api/image/newtab/?filePath=" + i.Image.Path).ToList()
             };
             return reportToEdit;
         }

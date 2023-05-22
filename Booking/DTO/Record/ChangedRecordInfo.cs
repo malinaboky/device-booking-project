@@ -1,4 +1,4 @@
-﻿namespace Booking.DTO
+﻿namespace Booking.DTO.Record
 {
     public class ChangedRecordInfo
     {

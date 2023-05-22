@@ -44,9 +44,7 @@ namespace Database.Controllers
             var contentType = MimeMapping.GetMimeMapping(extention);
 
             if (contentType == null)
-            {
                 contentType = "application/octet-stream";
-            }
 
             return new FileStreamResult(stream, contentType)
             {
@@ -77,7 +75,7 @@ namespace Database.Controllers
         }
 
         [HttpPost("device/{id}")]
-        public async Task<ActionResult> UploadDeviceImg(int id, IFormFile file)
+        public async Task<ActionResult> UploadDeviceImg(long id, IFormFile file)
         {
             var device = await _context.Devices.FindAsync(id);
 
@@ -124,7 +122,7 @@ namespace Database.Controllers
 
 
         [HttpPost("report/{reportId}")]
-        public async Task<ActionResult> UploadReportImage(int reportId, IFormFile file)
+        public async Task<ActionResult> UploadReportImage(long reportId, IFormFile file)
         {
             var report = await _context.Reports.Include(r => r.ImageInfos).FirstOrDefaultAsync(r => r.Id == reportId);
 

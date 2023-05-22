@@ -1,5 +1,4 @@
 ﻿using Database.Models;
-using Database.DTO;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -8,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Booking.DTO;
 using Microsoft.Data.SqlClient.Server;
+using Booking.DTO.Record;
 
 namespace Database.Controllers
 {
@@ -27,6 +27,9 @@ namespace Database.Controllers
         [HttpPost("calendar/device")]
         public async Task<IActionResult> GetRecordsOfDeviceForCalendar([FromBody] InfoOfRecordsForCalendar recordsInfo)
         {
+            var timeInfo = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "TimeZone")?.Value;
+            var timeZone = timeInfo == null ? 0 : int.Parse(timeInfo);
+
             var device = await context.Devices.Include(d => d.Records).FirstOrDefaultAsync(d => d.Id == recordsInfo.DeviceId);
 
             var timeFrom = DateOnly.FromDateTime(DateTime.Parse(recordsInfo.Start, null,
@@ -42,8 +45,8 @@ namespace Database.Controllers
                                         new {
                                             id = r.Id,
                                             title = device.Name,
-                                            start = r.Date.ToDateTime(r.TimeFrom).ToString("yyyy-MM-ddThh:mm:ss.SSSZ"),
-                                            end = r.Date.ToDateTime(r.TimeTo).ToString("yyyy-MM-ddThh:mm:ss.SSSZ"),
+                                            start = r.Date.ToDateTime(r.TimeFrom).ToString("yyyy-MM-ddTHH:mm:ss.fffZ"),
+                                            end = r.Date.ToDateTime(r.TimeTo).ToString("yyyy-MM-ddTHH:mm:ss.fffZ"),
                                             booked = r.Booked,
                                             deviceId = device.Id
                                         }));
@@ -123,7 +126,7 @@ namespace Database.Controllers
         }
 
         [HttpGet("history/{deviceId}")]
-        public async Task<ActionResult<IEnumerable<RecordsDeviceCardDTO>>> GetRecordsOfDevice(int deviceId)
+        public async Task<ActionResult<IEnumerable<RecordsDeviceCardDTO>>> GetRecordsOfDevice(long deviceId)
         {
             var records = await context.Records.Include(r => r.User)
                                                 .Where(r => r.DeviceId == deviceId)
@@ -295,7 +298,7 @@ namespace Database.Controllers
         }
 
         [HttpPost("cancel/{recordId}")]
-        public async Task<ActionResult> CancelRecord(int recordId)
+        public async Task<ActionResult> CancelRecord(long recordId)
         {
             var record = await context.Records.FindAsync(recordId);
 
@@ -318,7 +321,7 @@ namespace Database.Controllers
         }
 
         [HttpDelete("delete/{recordId}")]
-        public async Task<IActionResult> DeleteRecord(int recordId)
+        public async Task<IActionResult> DeleteRecord(long recordId)
         {
             var record = await context.Records.FindAsync(recordId);
 

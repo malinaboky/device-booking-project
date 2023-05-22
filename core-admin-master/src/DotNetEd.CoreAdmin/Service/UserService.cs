@@ -18,12 +18,15 @@ namespace DotNetEd.CoreAdmin.Service
     {
         private readonly DeviceBookingContext context;
         private readonly FileUploadLocalService uploadService;
+        private readonly FileDownloadService downloadService;
 
         public UserService(DeviceBookingContext context, 
-            FileUploadLocalService uploadService)
+            FileUploadLocalService uploadService,
+            FileDownloadService downloadService)
         {
             this.context = context;
             this.uploadService = uploadService;
+            this.downloadService = downloadService;
         }
 
         public async Task<string> BlockUser(long id)
@@ -97,7 +100,7 @@ namespace DotNetEd.CoreAdmin.Service
                 {
                     Id = u.Id,
                     Name = $"{u.Firstname} {u.Secondname}",
-                    ImagePath = "/api/image/?filePath=" + u.Image.Path,
+                    ImagePath = downloadService.GetFileToDownload(u.Image.Path) == null ? "default.png" : "/api/image/?filePath=" + u.Image.Path,
                     Status = u.Status,
                     isBlocked = u.IsBlocked
                 })

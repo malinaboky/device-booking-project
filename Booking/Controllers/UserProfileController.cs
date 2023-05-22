@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Database.Deserializers;
 using Microsoft.AspNetCore.Cors;
-using Database.DTO;
+using Booking.DTO.User;
 
 namespace Database.Controllers
 {

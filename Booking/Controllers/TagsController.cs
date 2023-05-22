@@ -23,7 +23,7 @@ namespace Database.Controllers
         }
 
         [HttpGet("{deviceId}")]
-        public async Task<ActionResult<IEnumerable<TagDTO>>> GetTags(int deviceId)
+        public async Task<ActionResult<IEnumerable<TagDTO>>> GetTags(long deviceId)
         {
             var list = await _context.TagInfos.Where(tag => tag.DeviceId == deviceId)
                                               .Include(tag => tag.Tag)
@@ -59,7 +59,7 @@ namespace Database.Controllers
         }
 
         [HttpPut("{deviceId}/{tagId}")]
-        public async Task<ActionResult> PutTagToDevice(int deviceId, int tagId)
+        public async Task<ActionResult> PutTagToDevice(long deviceId, long tagId)
         {
             var device = await _context.Devices.FindAsync(deviceId);
             var tag = await _context.Tags.FindAsync(tagId);
@@ -84,7 +84,7 @@ namespace Database.Controllers
         }
 
         [HttpPost("{deviceId}/{name}")]
-        public async Task<ActionResult> PostToDeviceTag(int deviceId, string name)
+        public async Task<ActionResult> PostToDeviceTag(long deviceId, string name)
         {
             var device = await _context.Devices.FirstOrDefaultAsync(d => d.Id == deviceId);
 
@@ -130,7 +130,7 @@ namespace Database.Controllers
         }
 
         [HttpDelete("delete/{id}")]
-        public async Task<ActionResult> DeleteTag(int id)
+        public async Task<ActionResult> DeleteTag(long id)
         {
             var tag = await _context.Tags.FindAsync(id);
 
@@ -152,7 +152,7 @@ namespace Database.Controllers
         }
 
         [HttpDelete("delete/{deviceId}/{tagId}")]
-        public async Task<ActionResult> DeleteTagFromDevice(int deviceId, int tagId)
+        public async Task<ActionResult> DeleteTagFromDevice(long deviceId, long tagId)
         {
             var device = await _context.Devices.FindAsync(deviceId);
             var tag = await _context.Devices.FindAsync(tagId);

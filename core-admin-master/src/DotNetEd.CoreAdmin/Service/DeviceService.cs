@@ -17,12 +17,14 @@ namespace DotNetEd.CoreAdmin.Service
     {
         private readonly DeviceBookingContext context;
         private readonly FileUploadLocalService uploadService;
+        private readonly FileDownloadService downloadService;
 
         public DeviceService(DeviceBookingContext context,
-            FileUploadLocalService uploadService)
+            FileUploadLocalService uploadService, FileDownloadService downloadService)
         {
             this.context = context;
             this.uploadService = uploadService;
+            this.downloadService = downloadService;
         }
 
         public async Task CreateDevice(DeviceToCreate formData)
@@ -131,8 +133,8 @@ namespace DotNetEd.CoreAdmin.Service
                     Name = d.Name,
                     Os = d.Os.Name,
                     Diagonal = (double)d.Diagonal,
-                    ImagePath = "/api/image/?filePath=" + d.Image.Path,
-                    QrPath = "/api/image/?filePath=" + d.Qr.Path
+                    ImagePath = downloadService.GetFileToDownload(d.Image.Path) == null ? "default.png" : "/api/image/?filePath=" + d.Image.Path,
+                    QrPath = downloadService.GetFileToDownload(d.Qr.Path) == null ? "default.png" : "/api/image/?filePath=" + d.Qr.Path
                 })
                 .ToListAsync();
             return list;

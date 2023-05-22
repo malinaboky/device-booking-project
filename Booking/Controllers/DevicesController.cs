@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Http.Extensions;
 using System.Security.Policy;
+using Booking.DTO.Device;
 
 namespace Database.Controllers
 {
@@ -53,7 +54,7 @@ namespace Database.Controllers
         }
 
         [HttpGet("info/short/{id}")]
-        public async Task<ActionResult<ShortDeviceCardDTO>> GetDeviceShort(int id)
+        public async Task<ActionResult<ShortDeviceCardDTO>> GetDeviceShort(long id)
         {
             var url = "/api/image/?filePath=";
 
@@ -77,7 +78,7 @@ namespace Database.Controllers
         }
 
         [HttpGet("info/full/{id}")]
-        public async Task<ActionResult<FullDeviceCardDTO>> GetDeviceFull(int id)
+        public async Task<ActionResult<FullDeviceCardDTO>> GetDeviceFull(long id)
         {
             var url = "/api/image/?filePath=";
 

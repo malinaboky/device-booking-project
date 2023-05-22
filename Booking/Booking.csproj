@@ -16,7 +16,6 @@
   <ItemGroup>
     <Folder Include="Img\Users\" />
     <Folder Include="Img\Devices\" />
-    <Folder Include="wwwroot\img\" />
   </ItemGroup>
 
   <ItemGroup>

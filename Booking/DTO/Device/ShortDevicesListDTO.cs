@@ -1,6 +1,7 @@
-﻿using Database.Models;
+﻿using Database.DTO;
+using Database.Models;
 
-namespace Database.DTO
+namespace Booking.DTO.Device
 {
     public class ShortDevicesListDTO
     {

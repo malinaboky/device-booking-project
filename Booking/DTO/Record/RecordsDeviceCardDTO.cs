@@ -1,4 +1,4 @@
-﻿namespace Database.DTO
+﻿namespace Booking.DTO.Record
 {
     public class RecordsDeviceCardDTO
     {

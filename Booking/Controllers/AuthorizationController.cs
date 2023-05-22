@@ -7,9 +7,9 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Visus.LdapAuthentication;
 using System.Security.Claims;
-using Database.DTO;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
+using Booking.DTO.User;
 
 namespace Database.Controllers
 {
@@ -54,7 +54,7 @@ namespace Database.Controllers
                     {
                         return BadRequest(new { error = true, message = "Error saving to database" });
                     }
-                await Authenticate(user, data.RememberMe);
+                await Authenticate(user, data.RememberMe, data.TimeZone);
 
                 return Ok(new { message = "User successfully logged in" });
             }
@@ -91,12 +91,13 @@ namespace Database.Controllers
             return Ok(new { message = "User successfully logged out" });
         }
 
-        private async Task Authenticate(User user, bool rememberMe)
+        private async Task Authenticate(User user, bool rememberMe, int timeZone)
         {
             var claims = new List<Claim>
             {
                 new Claim(ClaimsIdentity.DefaultNameClaimType, user.Id.ToString()),
-                new Claim(ClaimsIdentity.DefaultRoleClaimType, user.Status)             
+                new Claim(ClaimsIdentity.DefaultRoleClaimType, user.Status),
+                new Claim("TimeZone", timeZone.ToString())
             };
             ClaimsIdentity id = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
