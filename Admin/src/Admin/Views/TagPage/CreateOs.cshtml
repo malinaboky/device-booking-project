@@ -1,0 +1,17 @@
+﻿@using DotNetEd.CoreAdmin.ViewModels.Device
+@using DotNetEd.CoreAdmin.ViewModels.Tag
+
+@model CreateTag
+
+@using (Html.BeginForm("CreateOsPost", "TagPage", FormMethod.Post, new { enctype = "multipart/form-data", @class = "add-tag" }))
+{
+    <div class="tag-form-row">
+        <input type="text" class="tag-field" asp-for="Name" name="Name" placeholder="Введите название ОС"/>
+        <br />
+        @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+    </div>
+
+    <button type="submit" class="btn btn-primary tag-submit-button">Create</button>
+}
+
+<script src="~/js/site.js"></script>

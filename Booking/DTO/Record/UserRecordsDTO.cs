@@ -1,4 +1,6 @@
-﻿namespace Booking.DTO.Record
+﻿using Booking.DTO.Device;
+
+namespace Booking.DTO.Record
 {
     public class UserRecordsDTO
     {
@@ -9,12 +11,5 @@
         public string TimeFrom { get; set; } = null!;
         public string TimeTo { get; set; } = null!;
         public bool Booked { get; set; }
-    }
-
-    public class DeviceInfo
-    {
-        public long Id { get; set; }
-        public string Name { get; set; } = null!;
-        public string? ImgPath { get; set; }
     }
 }

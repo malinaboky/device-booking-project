@@ -1,0 +1,150 @@
+﻿@using DotNetEd.CoreAdmin
+@using DotNetEd.CoreAdmin.ViewModels
+@using DotNetEd.CoreAdmin.ViewModels.Tag
+@using Microsoft.AspNetCore.Html
+@using NonFactors.Mvc.Grid
+@using System.Linq.Expressions
+@using Microsoft.EntityFrameworkCore
+@using System.Data
+
+@model ListOfTags
+
+@{
+    ViewData["Page_Title"] = "Теги";
+    Layout = "_CoreAdminLayout";
+
+    var dicOs = new Dictionary<long, long>();
+    var dicType = new Dictionary<long, long>();
+    var dicTag = new Dictionary<long, long>();
+
+    for (var i = 0; i < Model.ListOs.Count(); i++)
+        dicOs.Add(Model.ListOs[i].Id, (long)i);
+
+    for (var i = 0; i < Model.ListTag.Count(); i++)
+        dicTag.Add(Model.ListTag[i].Id, (long)i);
+
+    for (var i = 0; i < Model.ListType.Count(); i++)
+        dicType.Add(Model.ListType[i].Id, (long)i);
+}
+
+<link type="text/css" href="~/css/basicstyle.css" rel="stylesheet" />
+<h1 class="display-4">Теги</h1>
+
+<div class="tag-panel">
+    <div>
+        <div class="row">
+            <div class="col-lg-12 my-3 tag-create">
+                @await Html.PartialAsync("~/Views/TagPage/CreateTag.cshtml", new CreateTag())               
+            </div>
+        </div>
+        @using (Html.BeginForm("DeleteTagsPost", "TagPage", FormMethod.Post, new { @class = "add-form tag-form", @id = "tag"}))
+        {
+            <button type='submit' class='btn btn-primary delete-tag'>Delete selected</button>
+            @(Html.Grid("_TagGrid", Model.ListTag)
+                .Build((columns) =>
+                {
+                    columns.Add<long>(item => item.Id)
+                    .Titled(new PropertyForFiltering { Able = true, Name = "ID" });
+                    columns.Add<string>(item => item.Name)
+                    .Titled(new PropertyForFiltering { Able = true, Name = "Name" });
+
+                    columns.Add(item => new HtmlString($"<button class='save-tag' type='button' onclick=\"saveOs('{item.Type}',{item.Id})\">Save</>"));
+                    columns.Add(item => Html.ActionLink("Delete", "Delete", new { Id = item.Id }));
+                    columns.Add(item => Html.CheckBoxFor(y => y.ListTag[(int)dicTag[item.Id]].Selected, new { @id = $"SelectedTag{dicTag[item.Id]}", @onclick = $"turnSelectAllTag({dicTag[item.Id]})" }))
+                    .Titled(new HtmlString("<input type=\"checkbox\" id=\"SelectAllTag\" onclick=\"changeAllTag()\">"));
+                }
+                )
+                .Using(GridFilterMode.Header)
+                .Empty("No data found")
+                .Filterable()
+                .Sortable()
+                )
+            @for (var i = 0; i < Model.ListTag.Count(); i++)
+            {
+                @Html.HiddenFor(y => y.ListTag[i].Id);
+            }
+        }
+    </div>
+    <div>
+        <div class="row">
+            <div class="col-lg-12 my-3 tag-create">
+                @await Html.PartialAsync("~/Views/TagPage/CreateOs.cshtml", new CreateTag())                
+            </div>
+        </div>
+        @using (Html.BeginForm("DeleteOsPost", "TagPage", FormMethod.Post, new { @class = "add-form tag-form", @id = "os" }))
+        {
+            <button type='submit' class='btn btn-primary delete-tag'>Delete selected</button>
+            @(Html.Grid("_TagGrid", Model.ListOs)
+                .Build((columns) =>
+                {
+                    columns.Add<long>(item => item.Id)
+                    .Titled(new PropertyForFiltering { Able = true, Name = "ID" });
+                    columns.Add<string>(item => item.Name)
+                    .Titled(new PropertyForFiltering { Able = true, Name = "Name" });
+
+                    columns.Add(item => new HtmlString($"<button class='save-tag' type='button' onclick=\"saveOs('{item.Type}',{item.Id})\">Save</>"));
+                    columns.Add(item => Html.ActionLink("Delete", "Delete", new { Id = item.Id }));
+                    columns.Add(item => Html.CheckBoxFor(y => y.ListOs[(int)dicOs[item.Id]].Selected, new { @id = $"SelectedOs{dicOs[item.Id]}", @onclick = $"turnSelectAllOs({dicOs[item.Id]})" }))
+                    .Titled(new HtmlString("<input type=\"checkbox\" id=\"SelectAllOs\" onclick=\"changeAllOs()\">"));
+                }
+                )
+                .Using(GridFilterMode.Header)
+                .Empty("No data found")
+                .Filterable()
+                .Sortable()
+                )
+            @for (var i = 0; i < Model.ListOs.Count(); i++)
+            {
+                @Html.HiddenFor(y => y.ListOs[i].Id);
+            }
+        }    
+    </div>
+
+   <div>
+        <div class="row">
+            <div class="col-lg-12 my-3 tag-create">
+                @await Html.PartialAsync("~/Views/TagPage/CreateType.cshtml", new CreateTag())
+            </div>
+        </div>
+        @using (Html.BeginForm("DeleteTypesPost", "TagPage", FormMethod.Post, new { @class = "add-form tag-form", @id = "type" }))
+        {
+            <button type='submit' class='btn btn-primary delete-tag'>Delete selected</button>
+            @(Html.Grid("_TagGrid", Model.ListType)
+                .Build((columns) =>
+                {
+                    columns.Add<long>(item => item.Id)
+                    .Titled(new PropertyForFiltering { Able = true, Name = "ID" });
+                    columns.Add<string>(item => item.Name)
+                    .Titled(new PropertyForFiltering { Able = true, Name = "Name" });
+
+                    columns.Add(item => new HtmlString($"<button class='save-tag' type='button' onclick=\"saveOs('{item.Type}',{item.Id})\">Save</>"));
+                    columns.Add(item => Html.ActionLink("Delete", "Delete", new { Id = item.Id }));
+                    columns.Add(item => Html.CheckBoxFor(y => y.ListType[(int)dicType[item.Id]].Selected, new { @id = $"SelectedType{dicType[item.Id]}", @onclick = $"turnSelectAllType({dicType[item.Id]})" }))
+                    .Titled(new HtmlString("<input type=\"checkbox\" id=\"SelectAllType\" onclick=\"changeAllType()\">"));
+                }
+                )
+                .Using(GridFilterMode.Header)
+                .Empty("No data found")
+                .Filterable()
+                .Sortable()
+                )
+            @for (var i = 0; i < Model.ListType.Count(); i++)
+            {
+                @Html.HiddenFor(y => y.ListType[i].Id);
+            }
+        }
+   </div>
+</div>
+
+
+@section Scripts
+    {
+    <script src="~/js/jquery-3.5.0.js"></script>
+    <script src="~/js/tag.js"></script>
+    <script>
+        document.querySelectorAll(".mvc-grid").forEach(element => new MvcGrid(element));
+    </script>
+}
+    <link rel="stylesheet" href="~/css/style.css">
+
+

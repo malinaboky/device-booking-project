@@ -1,5 +1,4 @@
 ﻿.add-form {
-    width: 400px;
     padding-top: 30px;
     padding-bottom: 20px;
 }
@@ -77,4 +76,150 @@ div.submit-panel {
     display: none;
 }
 
+img {
+    border: 2px solid;
+    border-radius: 0.25rem;
+    margin: 0 auto;
+}
 
+#img-preview {
+    height: 200px;
+    margin-bottom: 8px;
+} 
+
+.image-panel {
+    max-height: 400px;
+    max-width: 300px;
+}
+
+.input-file span {
+    cursor: pointer;
+    font-size: 14px;
+    color: rgb(255 255 255);
+    text-align: center;
+    border-radius: 4px;
+    background-color: #007bff;
+    padding: 8px 10px;
+    border: none;
+    margin-top: 5px;
+    margin-bottom: 0;
+    transition: background-color 0.2s;
+}
+
+.input-file {
+    margin-bottom: 0;
+}
+
+.input-file input[type=file] {
+    opacity: 0;
+    display: block;
+    width: 0;
+    height: 0;
+ }
+
+.input-file input[type=file]:focus + span {
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+
+.input-file:hover span {
+    background-color: #59be6e;
+}
+
+.input-file:active span {
+    background-color: #2E703A;
+}
+
+.delete-button {
+    cursor: pointer;
+    color: white;
+    background-color: #007bff;
+    border: none;
+    height: 34.4px;
+    width: 34px;
+    border-radius: 0.25rem;
+    transition: background-color 0.2s;
+    margin-bottom: 8px;
+}
+
+.delete-button:hover {
+    background-color: darkred;
+}
+
+.img-link {
+    color: black;
+}
+
+.img-link:hover {
+    color: #007bff;
+}
+
+.user-page {
+    display: flex;
+}
+
+table.tag-table{
+    max-width: 33%;
+    font-size: 0.8rem;
+    line-height: 0.8em;
+    overflow-x: visible;
+}
+
+.tag-panel {
+    display: flex;
+    justify-content: space-around;
+}
+
+.tag-panel .btn {
+    font-size: 0.8rem;
+}
+
+.tag-create {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.add-tag {
+    display: flex;
+    width: 100%;
+}
+
+.tag-form-row {
+    width: 70%;
+    height: 30px;
+    margin-right: 5px;
+}
+
+.tag-field {
+    width: 100%;
+    height: 100%;
+}
+
+.tag-submit-button {
+    height: 30px;
+    padding: 0 8px 0 8px;
+}
+
+form.add-form.tag-form {
+    padding: 0;
+}
+
+.delete-tag {
+    margin-bottom: 5px;
+}
+
+.tag-value {
+    width: 120px;
+    border: none;
+}
+
+.save-tag {
+    border: none;
+    background-color: white;
+    color: #007bff;
+    padding: 0;
+}
+
+.save-tag:hover {
+    text-decoration: underline; /* Добавляем подчеркивание при наведении курсора мыши на ссылку */
+}

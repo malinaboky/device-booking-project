@@ -8,6 +8,9 @@ using Microsoft.AspNetCore.Cors;
 using Booking.DTO;
 using Microsoft.Data.SqlClient.Server;
 using Booking.DTO.Record;
+using System.Globalization;
+using Booking.Services;
+using Booking.DTO.Device;
 
 namespace Database.Controllers
 {
@@ -18,42 +21,35 @@ namespace Database.Controllers
     public class RecordsController : ControllerBase
     {
         private readonly DeviceBookingContext context;
+        private readonly string timeFormat;
+        private readonly RecordAPIService recordAPIService;
 
-        public RecordsController(DeviceBookingContext context)
+        public RecordsController(DeviceBookingContext context, 
+            IConfiguration configuration, RecordAPIService recordAPIService)
         {
             this.context = context;
+            this.recordAPIService = recordAPIService;
+            timeFormat = configuration["TimeFormat"];
         }
 
         [HttpPost("calendar/device")]
         public async Task<IActionResult> GetRecordsOfDeviceForCalendar([FromBody] InfoOfRecordsForCalendar recordsInfo)
         {
-            var timeInfo = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "TimeZone")?.Value;
-            var timeZone = timeInfo == null ? 0 : int.Parse(timeInfo);
+            var timeZone = recordAPIService.GetTimeZone(HttpContext);
 
-            var device = await context.Devices.Include(d => d.Records).FirstOrDefaultAsync(d => d.Id == recordsInfo.DeviceId);
-
-            var timeFrom = DateOnly.FromDateTime(DateTime.Parse(recordsInfo.Start, null,
-                                       System.Globalization.DateTimeStyles.RoundtripKind));
-            var timeTo = DateOnly.FromDateTime(DateTime.Parse(recordsInfo.End, null,
-                                       System.Globalization.DateTimeStyles.RoundtripKind));
+            var device = await recordAPIService.GetDeviceById(recordsInfo.DeviceId);
 
             if (device == null)
                 return NotFound(new { error = true, message = "Device is not found" });
 
-            return Ok(device.Records.Where(r => r.Date >= timeFrom && r.Date <= timeTo)
-                                    .Select(r => 
-                                        new {
-                                            id = r.Id,
-                                            title = device.Name,
-                                            start = r.Date.ToDateTime(r.TimeFrom).ToString("yyyy-MM-ddTHH:mm:ss.fffZ"),
-                                            end = r.Date.ToDateTime(r.TimeTo).ToString("yyyy-MM-ddTHH:mm:ss.fffZ"),
-                                            booked = r.Booked,
-                                            deviceId = device.Id
-                                        }));
+            var timeFrom = recordAPIService.ParseTimeFromString(recordsInfo.Start);
+            var timeTo = recordAPIService.ParseTimeFromString(recordsInfo.End);
+
+            return Ok(recordAPIService.GetRecords(device.Records, timeFrom, timeTo, timeZone));
         }
 
         [HttpPost("calendar/user")]
-        public async Task<IActionResult> GetRecordsOfUserForCalendar([FromBody] InfoOfRecordsCalendarUser recordsInfo)
+        public async Task<IActionResult> GetRecordsOfUserForCalendar([FromBody] TimeInfoOfRecord recordsInfo)
         {
             if (HttpContext.User.Identity?.Name == null)
                 return NotFound(new { error = true, message = "User is not found" });
@@ -64,23 +60,14 @@ namespace Database.Controllers
             if (user == null)
                 return NotFound(new { error = true, message = "User is not found" });
 
-            var records = await context.Records.Include(r => r.Device).Where(r => r.UserId == user.Id).ToListAsync();
+            var timeZone = recordAPIService.GetTimeZone(HttpContext);
 
-            var timeFrom = DateOnly.FromDateTime(DateTime.Parse(recordsInfo.Start, null,
-                                       System.Globalization.DateTimeStyles.RoundtripKind));
-            var timeTo = DateOnly.FromDateTime(DateTime.Parse(recordsInfo.End, null,
-                                       System.Globalization.DateTimeStyles.RoundtripKind));            
+            var records = await recordAPIService.GetRecordsOfUser(userId);
 
-            return Ok(records.Where(r => r.Date >= timeFrom && r.Date <= timeTo)
-                                    .Select(r =>
-                                        new {
-                                            id = r.Id,
-                                            title = r.Device.Name,
-                                            start = r.Date.ToDateTime(r.TimeFrom).ToString("yyyy-MM-ddTHH:mm:ss.fffZ"),
-                                            end = r.Date.ToDateTime(r.TimeTo).ToString("yyyy-MM-ddTHH:mm:ss.fffZ"),
-                                            booked = r.Booked,
-                                            deviceId = r.DeviceId
-                                        }));
+            var timeFrom = recordAPIService.ParseTimeFromString(recordsInfo.Start);
+            var timeTo = recordAPIService.ParseTimeFromString(recordsInfo.End);
+
+            return Ok(recordAPIService.GetRecords(records, timeFrom, timeTo, timeZone));
         }
 
         [HttpPost("calendar/change")]
@@ -101,16 +88,23 @@ namespace Database.Controllers
                 return NotFound(new { error = true, message = "Record is not found" });
 
             var timeFrom = DateTime.Parse(recordInfo.Start, null,
-                                       System.Globalization.DateTimeStyles.RoundtripKind);
+                                       DateTimeStyles.RoundtripKind);
             var timeTo = DateTime.Parse(recordInfo.End, null,
-                                       System.Globalization.DateTimeStyles.RoundtripKind);
+                                       DateTimeStyles.RoundtripKind);
 
             if (timeFrom.Date != timeTo.Date)
                 return BadRequest(new { error = true, message = "Device can be booked only for one day" });
 
-            record.Date = DateOnly.FromDateTime(timeFrom);
-            record.TimeFrom = TimeOnly.FromDateTime(timeFrom);
-            record.TimeTo = TimeOnly.FromDateTime(timeTo);
+            var date = DateOnly.FromDateTime(timeFrom);
+            var start = TimeOnly.FromDateTime(timeFrom);
+            var end = TimeOnly.FromDateTime(timeTo);
+
+            if (recordAPIService.GetCollision(date, start, end))
+                return BadRequest(new { error = true, message = "Records collision" });
+
+            record.Date = date;
+            record.TimeFrom = start;
+            record.TimeTo = end;
 
             context.Entry(record).State = EntityState.Modified;
 

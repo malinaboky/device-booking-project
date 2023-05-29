@@ -9,6 +9,7 @@ using System.Security.Claims;
 using System.Text.Json.Serialization;
 using Visus.LdapAuthentication;
 using DotNetEd.CoreAdmin.Service;
+using Booking.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,6 +33,10 @@ builder.Services.AddTransient<UserService>();
 builder.Services.AddTransient<ReportService>();
 
 builder.Services.AddTransient<RecordService>();
+
+builder.Services.AddTransient<RecordAPIService>();
+
+builder.Services.AddTransient<TagService>();
 
 builder.Services.AddControllers().AddJsonOptions(x =>
                 x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);

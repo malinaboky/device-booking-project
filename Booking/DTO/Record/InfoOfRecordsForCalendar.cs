@@ -1,9 +1,7 @@
 ﻿namespace Booking.DTO
 {
-    public class InfoOfRecordsForCalendar
+    public class InfoOfRecordsForCalendar : TimeInfoOfRecord
     {
         public long DeviceId { get; set; }
-        public string Start { get; set; } = null!;
-        public string End { get; set; } = null!;
     }
 }

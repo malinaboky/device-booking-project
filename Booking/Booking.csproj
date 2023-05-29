@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\core-admin-master\src\DotNetEd.CoreAdmin\DotNetEd.CoreAdmin.csproj" />
+    <ProjectReference Include="..\Admin\src\Admin\Admin.csproj" />
     <ProjectReference Include="..\Database\Database.csproj" />
     <ProjectReference Include="..\Visus.LdapAuthentication-main\Visus.LdapAuthentication\Visus.LdapAuthentication.csproj" />
   </ItemGroup>

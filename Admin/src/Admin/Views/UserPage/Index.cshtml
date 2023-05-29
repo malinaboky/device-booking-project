@@ -1,0 +1,74 @@
+﻿@using DotNetEd.CoreAdmin.ViewModels
+@using DotNetEd.CoreAdmin.ViewModels.User
+@using Microsoft.AspNetCore.Html
+@using NonFactors.Mvc.Grid
+@using System.Linq.Expressions
+@using Microsoft.EntityFrameworkCore
+@using System.Data
+
+@model UserList
+
+@{
+    ViewData["Page_Title"] = "Пользователи";
+    Layout = "_CoreAdminLayout";
+
+    var dic = new Dictionary<long, long>();
+    for (var i = 0; i < Model.Users.Count(); i++)
+        dic.Add(Model.Users[i].Id, (long)i);
+}
+
+<link rel="stylesheet" href="~/css/style.css">
+
+<h1 class="display-4">Пользователи</h1>
+
+@using (Html.BeginForm("BlockAmountPost", "UserPage", FormMethod.Post, new { @class = "add-form" }))
+{
+    <div class="row">
+        <div class="col-lg-12 my-3">
+            @Html.ActionLink("Create new", "Create", new { id = "Device" }, new { @class = "btn btn-primary"})
+            <button type='submit' class='btn btn-primary'>Block selected</button>
+        </div>
+    </div>
+
+    @(Html.Grid(Model.Users)
+                    .Build((columns) =>
+                    {
+                        columns.Add<long>(item => item.Id)
+                                   .Titled(new PropertyForFiltering { Able = true, Name = "Id" });
+                        columns.Add<string>(item =>item.Name)
+                                   .Titled(new PropertyForFiltering {Able = true, Name = "Name"});
+                        columns.Add<string>(item => item.Status)
+                                   .Titled(new PropertyForFiltering {Able = true, Name = "Status"});
+                        columns.Add<bool>(item => item.isBlocked)
+                                   .Titled(new PropertyForFiltering {Able = true, Name = "Blocked"});
+                        columns.Add<HtmlString>(item => new HtmlString($"<img height='{(item.ImagePath.Contains("default") ? 50 : 100)}' src='{item.ImagePath}'>"))
+                                   .Titled(new PropertyForFiltering {Name = "Image"});
+
+                        columns.Add(item => Html.ActionLink("Edit", "Edit", new { Id = item.Id }));
+                        columns.Add(item => Html.ActionLink("Block", "BlockPost", new { Id = item.Id }));
+                        columns.Add(item => Html.CheckBoxFor(y => y.Users[(int)dic[item.Id]].Selected, new { @id = $"Selected{dic[item.Id]}", @onclick = $"turnSelectAll({dic[item.Id]})" }))
+                                   .Titled(new HtmlString("<input type=\"checkbox\" id=\"SelectAll\" onclick=\"changeAll()\">"));
+                    }
+                )
+            .Using(GridFilterMode.Header)
+            .Empty("No data found")
+            .Filterable()
+            .Sortable()
+            .Pageable()
+        )
+    @for (var i = 0; i < Model.Users.Count(); i++)
+    {
+        @Html.HiddenFor(y => y.Users[i].Id);
+    }
+}
+
+@section Scripts
+    {
+    <script src="~/js/jquery-3.5.0.js"></script>
+    <script src="~/js/site.js"></script>
+    <script>
+        document.querySelectorAll(".mvc-grid").forEach(element => new MvcGrid(element));
+    </script>
+}
+
+
