@@ -20,13 +20,6 @@
         <input type="hidden" name="Id" value="@Model.Id" />
         <div class="form-row">
             <div class="row-name">
-                <label>Название</label>
-            </div>
-            <br />
-            <p class="only-read field">@Model.Name</p>
-        </div>
-        <div class="form-row">
-            <div class="row-name">
                 <label>Статус</label>
             </div>
             <br />
@@ -84,9 +77,9 @@
         <br />
         <div class="form-row submit-panel">
             <button type="submit" class="btn btn-primary submit-button">Save</button>
-            @Html.ActionLink("No, go back", "Index", new { @class = "back-link" })
+            @Html.ActionLink("No, go back", "Index", "ReportPage", null, new { @class = "back-link" })
         </div>
     }
 </div>
 
-<script src="~/js/site.js"></script>
+<script src="~/js/edit.js"></script>

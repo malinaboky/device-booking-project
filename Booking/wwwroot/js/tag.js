@@ -111,5 +111,59 @@ function saveOs(type, id) {
         },
         body: JSON.stringify(item)
     })
+        .then(result => console.log(result.messange))
         .catch(error => console.error('Unable to add item.', error));
+
+}
+
+function saveTag(type, id) {
+    let tag = document.getElementById(type + id);
+    let nameOfTag = tag.value;
+
+    const item = {
+        Id: id,
+        Name: nameOfTag
+    };
+
+    fetch("TagPage/ChangeTag", {
+        method: 'POST',
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(item)
+    })
+        .then((response) => response.json())
+        .then((data) => {
+            if (data.messange == "Ok") {
+                tag.style.backgroundColor = "#93C54B";
+            }
+            else {
+                tag.value = "";
+                tag.placeholder = data.messange;
+                tag.style.backgroundColor = "#A51939";
+                tag.style.color = "white";
+            }
+        })
+        .catch(error => console.error('Unable to add item.', error));
+
+}
+
+function saveType(type, id) {
+    let nameOfTag = document.getElementById(type + id).value;
+
+    const item = {
+        Id: id,
+        Name: nameOfTag
+    };
+
+    fetch("TagPage/ChangeType", {
+        method: 'POST',
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(item)
+    })
+        .then(result => console.log(result))
+        .catch(error => console.error('Unable to add item.', error));
+
 }

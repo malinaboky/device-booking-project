@@ -25,7 +25,7 @@ namespace DotNetEd.CoreAdmin.Controllers
         {
             if (ModelState.IsValid)
                 await tagService.SaveOs(info);
-            return View("Index", await tagService.GetTags());
+            return RedirectToAction("Index");
         }
 
         [HttpPost]
@@ -33,7 +33,7 @@ namespace DotNetEd.CoreAdmin.Controllers
         {
             if (ModelState.IsValid)
                 await tagService.SaveTag(info);
-            return View("Index", await tagService.GetTags());
+            return RedirectToAction("Index");
         }
 
         [HttpPost]
@@ -41,35 +41,55 @@ namespace DotNetEd.CoreAdmin.Controllers
         {
             if (ModelState.IsValid)
                 await tagService.SaveType(info);
-            return View("Index", await tagService.GetTags());
+            return RedirectToAction("Index");
         }
 
         [HttpPost]
         public async Task<IActionResult> DeleteTagsPost([FromForm] ListOfTags list)
         {
             await tagService.DeleteTags(list.ListTag);
-            return View("Index", await tagService.GetTags());
+            return RedirectToAction("Index");
         }
 
         [HttpPost]
         public async Task<IActionResult> DeleteTypesPost([FromForm] ListOfTags list)
         {
             await tagService.DeleteTypes(list.ListType);
-            return View("Index", await tagService.GetTags());
+            return RedirectToAction("Index");
         }
 
         [HttpPost]
         public async Task<IActionResult> DeleteOsPost([FromForm] ListOfTags list)
         {
             await tagService.DeleteOsAmount(list.ListOs);
-            return View("Index", await tagService.GetTags());
+            return RedirectToAction("Index");
         }
 
         [HttpPost]
         public async Task<IActionResult> ChangeOs([FromBody] ChangeTag os)
         {
             await tagService.EditOs(os);
-            return View("Index", await tagService.GetTags());
+            return RedirectToAction("Index");
         }
+
+        [HttpPost]
+        public async Task<IActionResult> ChangeTag([FromBody] ChangeTag tag)
+        {
+            var messange = await tagService.EditTag(tag);
+            return Json(new { messange });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ChangeType([FromBody] ChangeTag type)
+        {
+            await tagService.EditType(type);
+            return RedirectToAction("Index");
+        }
+
+        //[HttpPost]
+        //async Task<IActionResult> DeleteTag(long id)
+        //{
+
+        //}
     }
 }

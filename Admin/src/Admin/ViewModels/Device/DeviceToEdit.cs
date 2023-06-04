@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Admin;
+using Admin.ViewModels.Device;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -15,29 +17,16 @@ namespace DotNetEd.CoreAdmin.ViewModels.Device
         [Required(ErrorMessage = "Обязательное поле")]
         public string Name { get; set; } = null!;
 
-        [Required(ErrorMessage = "Обязательное поле")]
         [RegularExpression("^(?:-(?:[1-9](?:\\d{0,2}(?:,\\d{3})+|\\d*))|(?:0|(?:[1-9](?:\\d{0,2}(?:,\\d{3})+|\\d*))))(?:.\\d+|)$", ErrorMessage = "Допустимы только числовые значения")]
         public string Diagonal { get; set; }
+        
+        [ResolutionAttribute]        
+        public Resolution Resolution { get; set; }
 
-        [Required(ErrorMessage = "Обязательное поле")]
-        [RegularExpression(@"^\d+$", ErrorMessage = "Допустимы только числовые значения")]
-        public string Hight { get; set; }
-
-        [Required(ErrorMessage = "Обязательное поле")]
-        [RegularExpression(@"^\d+$", ErrorMessage = "Допустимы только числовые значения")]
-        public string Width { get; set; }
-
-        [Required(ErrorMessage = "Обязательное поле")]
-        public long OsId { get; set; }
-
-        [Required(ErrorMessage = "Обязательное поле")]
-        public ClassOfDevice ClassOfDevice { get; set; }
-
-        [Required(ErrorMessage = "Обязательное поле")]
-        public long TypeId { get; set; }
-
-        [Required(ErrorMessage = "Обязательное поле")]
-        public long DepartmentId { get; set; }
+        public long? OsId { get; set; }
+        public ClassOfDevice? ClassOfDevice { get; set; }
+        public long? TypeId { get; set; }
+        public long? DepartmentId { get; set; }
         public string ImagePath { get; set; }
         public IFormFile Image { get; set; }
     }

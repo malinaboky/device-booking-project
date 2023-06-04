@@ -97,12 +97,11 @@ namespace Database.Controllers
                 Name = device.Name,
                 Os = device.Os?.Name,
                 Diagonal = device.Diagonal,
+                Resolution = device.Resolution,
                 Type = device.Type?.Name,
                 Department = device.Department == null ? null : new DepartmentDTO { Id = device.Department.Id, Name = device.Department.Name },
                 Image = device.Image == null ? null : $"{url}{device.Image.Path}"
             });
         }
-
-
     }
 }

@@ -285,8 +285,6 @@ namespace Database
 
                 entity.Property(e => e.Reason).HasMaxLength(255);
 
-                entity.Property(e => e.Name).HasMaxLength(255);
-
                 entity.Property(e => e.Status).HasMaxLength(255);
 
                 entity.Property(e => e.UserId).HasColumnType("bigint");

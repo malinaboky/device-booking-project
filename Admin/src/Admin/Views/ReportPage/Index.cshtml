@@ -33,8 +33,6 @@
                         {
                             columns.Add<long>(item => item.UserId)
                                    .Titled(new PropertyForFiltering { Able = true, Name = "User ID" });
-                            columns.Add<string>(item => item.Name)
-                                   .Titled(new PropertyForFiltering { Able = true, Name = "Name" });
                             columns.Add<string>(item => item.Status)
                                    .Titled(new PropertyForFiltering { Able = true, Name = "Status" });
                             columns.Add<string>(item => item.Description)

@@ -78,8 +78,7 @@ namespace DotNetEd.CoreAdmin.Service
                     UserId = r.UserId,
                     Reason = r.Reason,
                     Description = r.Description,
-                    Status = r.Status,
-                    Name = r.Name
+                    Status = r.Status
                 }).ToListAsync();
             return reports;
         }
@@ -91,7 +90,7 @@ namespace DotNetEd.CoreAdmin.Service
             if (report == null)
                 return null;
 
-            return new ReportToDelete { Id = report.Id, Name = report.Name };
+            return new ReportToDelete { Id = report.Id };
         }
 
         public async Task<ReportToEdit> GetReportToEdit(long id)
@@ -106,7 +105,6 @@ namespace DotNetEd.CoreAdmin.Service
             var reportToEdit = new ReportToEdit
             {
                 Id = report.Id,
-                Name = report.Name,
                 Reason = report.Reason,
                 Description = report.Description,
                 Status = (StatusOfReports)Enum.Parse(typeof(StatusOfReports), report.Status),

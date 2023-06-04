@@ -30,6 +30,7 @@ namespace DotNetEd.CoreAdmin.ViewModels.User
 
         [Required(ErrorMessage = "Обязательное поле")]
         public StatusOfUser Status { get; set; }
+        public string ImagePath { get; set; }
 
         public long DepartmentId { get; set; }
 

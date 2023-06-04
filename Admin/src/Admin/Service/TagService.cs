@@ -32,7 +32,13 @@ namespace DotNetEd.CoreAdmin.Service
         public async Task<string> SaveOs(CreateTag info)
         {
             var os = new Os { Name = info.Name };
+            var tags = await context.Os.ToListAsync();
+
+            if (tags.Any(t => t.Name.ToLower() == info.Name.ToLower()))
+                return "This tag already exists";
+
             context.Os.Add(os);
+
             try
             {
                 await context.SaveChangesAsync();
@@ -47,6 +53,12 @@ namespace DotNetEd.CoreAdmin.Service
         public async Task<string> SaveType(CreateTag info)
         {
             var type = new Type { Name = info.Name };
+
+            var tags = await context.Types.ToListAsync();
+
+            if (tags.Any(t => t.Name.ToLower() == info.Name.ToLower()))
+                return "This tag already exists";
+
             context.Types.Add(type);
             try
             {
@@ -62,6 +74,12 @@ namespace DotNetEd.CoreAdmin.Service
         public async Task<string> SaveTag(CreateTag info)
         {
             var tag = new Tag { Name = info.Name };
+
+            var tags = await context.Tags.ToListAsync();
+
+            if (tags.Any(t => t.Name.ToLower() == info.Name.ToLower()))
+                return "This tag already exists";
+
             context.Tags.Add(tag);
             try
             {
@@ -100,6 +118,7 @@ namespace DotNetEd.CoreAdmin.Service
         public async Task DeleteTypes(List<TagDTO> info)
         {
             var list = new List<Type>();
+
             foreach (var type in info)
                 if (type.Selected)
                     list.Add(await context.Types.FindAsync(type.Id));
@@ -120,14 +139,13 @@ namespace DotNetEd.CoreAdmin.Service
         public async Task DeleteOsAmount(List<TagDTO> info)
         {
             var list = new List<Os>();
+
             foreach (var os in info)
                 if (os.Selected)
                     list.Add(await context.Os.Include(o => o.Devices).FirstOrDefaultAsync( o => o.Id == os.Id));
 
             if (list.Count > 0)
-            { 
                 context.Os.RemoveRange(list);
-            }
                 
             try
             {
@@ -140,12 +158,17 @@ namespace DotNetEd.CoreAdmin.Service
             }
         }
 
-        public async Task EditOs(ChangeTag tag)
+        public async Task<string> EditOs(ChangeTag tag)
         {
             var os = await context.Os.FindAsync(tag.Id);
 
             if (os == null)
-                return;
+                return null;
+
+            var tags = await context.Os.ToListAsync();
+            if (tags.Any(t => t.Name == tag.Name))
+                return "This tag already exists";
+
             os.Name = tag.Name;
 
             context.Entry(os).State = EntityState.Modified;
@@ -156,10 +179,64 @@ namespace DotNetEd.CoreAdmin.Service
             }
             catch (DbUpdateException)
             {
-                return;
+                return "Error saving to database";
             }
 
-            return;
+            return "Ok";
+        }
+
+        public async Task<string> EditType(ChangeTag tag)
+        {
+            var type = await context.Types.FindAsync(tag.Id);
+
+            if (type == null)
+                return null;
+
+            var tags = await context.Types.ToListAsync();
+            if (tags.Any(t => t.Name == tag.Name))
+                return "This tag already exists";
+
+            type.Name = tag.Name;
+
+            context.Entry(type).State = EntityState.Modified;
+
+            try
+            {
+                await context.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                return "Error saving to database";
+            }
+
+            return "Ok";
+        }
+
+        public async Task<string> EditTag(ChangeTag info)
+        {
+            var tag = await context.Tags.FindAsync(info.Id);
+
+            if (tag == null)
+                return null;
+
+            var tags = await context.Tags.ToListAsync();
+            if (tags.Any(t => t.Name == info.Name))
+                return "This tag already exists";
+
+            tag.Name = info.Name;
+
+            context.Entry(tag).State = EntityState.Modified;
+
+            try
+            {
+                await context.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                return "Error saving to database";
+            }
+
+            return "Ok";
         }
     }
 }

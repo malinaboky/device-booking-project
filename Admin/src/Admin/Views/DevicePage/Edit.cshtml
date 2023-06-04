@@ -8,7 +8,6 @@
     Layout = "_CoreAdminLayout";
 }
 
-<link type="text/css" href="~/css/mainpage.css" rel="stylesheet" />
 <link type="text/css" href="~/css/basicstyle.css" rel="stylesheet" />
 <h1 class="display-4">Редактирование устройства</h1>
 
@@ -32,7 +31,7 @@
                     <label>Диагональ</label>
                 </div>
                 <br />
-                <input type="text" class="field" asp-for="Diagonal" name="Diagonal" value="@Model.Diagonal" />
+                <input type="text" class="field" asp-for="Diagonal" name="Diagonal" value="@Model.Diagonal" placeholder="Десятичное число"/>
                 <br />
                 @Html.ValidationMessageFor(model => model.Diagonal, "", new { @class = "text-danger" })
             </div>
@@ -43,10 +42,11 @@
                 </div>
                 <br />
                 <div class="resolution">
-                    <input type="text" class="field hight" asp-for="Hight" name="Hight" value="@Model.Hight" placeholder="Высота" />
-                    <input type="text" class="field width" asp-for="Width" name="Width" value="@Model.Width" placeholder="Ширина" />
-                    @Html.ValidationMessageFor(model => model.Hight, "", new { @class = "text-danger resolution-text" })
-                    @Html.ValidationMessageFor(model => model.Width, "", new { @class = "text-danger resolution-text" })
+                <input type="text" class="field hight" asp-for="Resolution.Height" name="Resolution.Height" value="@Model.Resolution.Height" placeholder="Высота" />
+                <input type="text" class="field width" asp-for="Resolution.Width" name="Resolution.Width" value="@Model.Resolution.Width" placeholder="Ширина" />
+                    @Html.ValidationMessageFor(model => model.Resolution.Height, "", new { @class = "text-danger resolution-text" })
+                    @Html.ValidationMessageFor(model => model.Resolution.Width, "", new { @class = "text-danger resolution-text" })
+                    @Html.ValidationMessageFor(model => model.Resolution,"", new { @class = "text-danger" })
                 </div>
                 <br />
             </div>
@@ -93,13 +93,14 @@
             <br />
             <div class="form-row submit-panel">
                 <button type="submit" class="btn btn-primary submit-button">Save</button>
-                @Html.ActionLink("No, go back", "Index", new { @class = "back-link" })
+                @Html.ActionLink("No, go back", "Index", "DevicePage", null, new { @class = "back-link" })
             </div>
      </div>
      <div class="image-panel">
         <div id="img-preview">
             @{
                 var newPath = "http://localhost:5294" + Model.ImagePath.Replace("\\", "\\\\");
+                <input type="hidden" value="@Model.ImagePath" name="ImagePath" asp-for="ImagePath"/>;
                 <a title="Нажмите, для просмотра в полном размере" href="#" onclick="imageOnClick('@newPath')" class="img-link">
                     <img src="@newPath" height="200" id="old-pic" />
                 </a>
@@ -115,3 +116,5 @@
            @Html.ValidationMessageFor(model => model.Image, "", new { @class = "text-danger" })
     </div>
 }
+
+<script src="~/js/edit.js"></script>

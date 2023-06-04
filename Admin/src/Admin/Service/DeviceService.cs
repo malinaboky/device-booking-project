@@ -1,4 +1,5 @@
-﻿using Database;
+﻿using Admin.ViewModels.Device;
+using Database;
 using Database.Models;
 using Database.Services;
 using DotNetEd.CoreAdmin.ViewModels.Device;
@@ -7,6 +8,7 @@ using Microsoft.Data.SqlClient.Server;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -29,16 +31,15 @@ namespace DotNetEd.CoreAdmin.Service
 
         public async Task CreateDevice(DeviceToCreate formData)
         {
-            _ = double.TryParse(formData.Diagonal.Replace('.',','), out double diagonal);
             var device = new Device
             {
                 Name = formData.Name,
                 DepartmentId = formData.DepartmentId,
                 OsId = formData.OsId,
                 TypeId = formData.TypeId,
-                Resolution = $"{formData.Hight} x {formData.Width}",
-                Diagonal = diagonal,
-                Class = formData.ClassOfDevice.ToString(),
+                Resolution = formData.Resolution.Height == null ? null : $"{formData.Resolution.Height} x {formData.Resolution.Width}",
+                Diagonal = formData.Diagonal == null ? null : double.Parse(formData.Diagonal.Replace('.', ',')),
+                Class = formData.ClassOfDevice.ToString() == "" ? null : formData.ClassOfDevice.ToString(),
             };
             context.Devices.Add(device);
             try
@@ -68,9 +69,15 @@ namespace DotNetEd.CoreAdmin.Service
             if (isBooked)
                 return "Device is booked now";
 
-            context.Records.RemoveRange(device.Records);
-            context.TagInfos.RemoveRange(device.TagInfos);
-            context.Images.Remove(device.Image);
+            if (device.Records != null)
+                context.Records.RemoveRange(device.Records);
+
+            if (device.TagInfos != null)
+                context.TagInfos.RemoveRange(device.TagInfos);
+
+            if (device.Image != null)
+                context.Images.Remove(device.Image);
+
             context.Devices.Remove(device);
 
             try
@@ -104,8 +111,10 @@ namespace DotNetEd.CoreAdmin.Service
             {
                 if (device.Records != null)
                     context.Records.RemoveRange(device.Records);
+
                 if(device.TagInfos != null)
                     context.TagInfos.RemoveRange(device.TagInfos);
+
                 if (device.Image != null)
                     context.Images.Remove(device.Image);
             }
@@ -134,58 +143,54 @@ namespace DotNetEd.CoreAdmin.Service
                 {
                     Id = d.Id,
                     Name = d.Name,
-                    Os = d.Os.Name,
-                    Diagonal = (double)d.Diagonal,
+                    Os = d.Os == null ? "-" : d.Os.Name,
+                    Diagonal = d.Diagonal == null ? 0 : (double)d.Diagonal,
                     ImagePath = downloadService.GetFileToDownload(d.Image.Path) == null ? "default.png" : "/api/image/?filePath=" + d.Image.Path,
-                    QrPath = downloadService.GetFileToDownload(d.Qr.Path) == null ? "default.png" : "/api/image/?filePath=" + d.Qr.Path
+                    QrPath = downloadService.GetFileToDownload(d.Qr.Path) == null ? "/default.png" : "/api/image/?filePath=" + d.Qr.Path,
                 })
                 .ToListAsync();
             return list;
         }
 
-        public async Task<DeviceToDelete> GetDeviceToDelete(long id)
-        {
-            var device = await context.Devices.FindAsync(id);
-
-            if (device == null)
-                return null;
-
-            return new DeviceToDelete { Id = device.Id, Name = device.Name };
-        }
-
         public async Task<DeviceToEdit> GetDeviceToEdit(long id)
         {
-            var device = await context.Devices.Include(d => d.Image).FirstOrDefaultAsync(d => d.Id == id);
+            var device = await context.Devices.Include(d => d.Image)
+                                              .FirstOrDefaultAsync(d => d.Id == id);
+
             if (device == null)
                 return null;
-            var resolution = device.Resolution.Replace(" ", "").Split('x');
+
+            var resolution = device.Resolution?.Replace(" ", "").Split('x');
+
             var deviceToEdit = new DeviceToEdit
             {
                 Id = device.Id,
                 Name = device.Name,
-                DepartmentId = (long)device.DepartmentId,
-                OsId = (long)device.OsId,
-                TypeId = (long)device.TypeId,
-                Hight = resolution[0],
-                Width = resolution[1],
-                Diagonal = device.Diagonal.ToString(),
-                ClassOfDevice = (ClassOfDevice)Enum.Parse(typeof(ClassOfDevice), device.Class),
-                ImagePath = device.Image == null || downloadService.GetFileToDownload(device.Image.Path) == null ? "/default.png" : "/api/image/newtab/?filePath=" + device.Image.Path,
-            };
+                DepartmentId = device.DepartmentId,
+                OsId = device.OsId,
+                TypeId = device.TypeId,
+                Resolution = resolution == null ? new Resolution { Height = "", Width = ""} : new Resolution { Height = resolution[0], Width = resolution[1] },
+                Diagonal = device.Diagonal == null ? "" : device.Diagonal.ToString(),
+                ClassOfDevice = device.Class == null ? null : (ClassOfDevice)Enum.Parse(typeof(ClassOfDevice), device.Class),
+                ImagePath = device.Image == null || downloadService.GetFileToDownload(device.Image.Path) == null ? "/default.png" : "/api/image/newtab/?filePath=" + device.Image.Path
+        };
             return deviceToEdit;
         }
 
-        public async Task<string> EditDevice(Device device, DeviceToEdit formData)
+        public async Task<string> EditDevice(long id, DeviceToEdit formData)
         {
-            _ = double.TryParse(formData.Diagonal.Replace('.', ','), out double diagonal);
+            var device = await context.Devices.FindAsync(id);
 
+            if (device == null)
+                return "Device is not found";
+
+            device.Diagonal = formData.Diagonal == null ? null : double.Parse(formData.Diagonal.Replace('.', ','));
             device.Name = formData.Name;
             device.DepartmentId = formData.DepartmentId;
             device.OsId = formData.OsId;
             device.TypeId = formData.TypeId;
-            device.Diagonal = diagonal;
-            device.Class = formData.ClassOfDevice.ToString();
-            device.Resolution = $"{formData.Hight} x {formData.Width}";
+            device.Class = formData.ClassOfDevice.ToString() == "" ? null : formData.ClassOfDevice?.ToString();
+            device.Resolution = formData.Resolution.Height == null ? null : $"{formData.Resolution.Height} x {formData.Resolution.Width}";
 
             context.Entry(device).State = EntityState.Modified;
 

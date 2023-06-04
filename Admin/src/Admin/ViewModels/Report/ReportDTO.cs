@@ -10,7 +10,6 @@ namespace DotNetEd.CoreAdmin.ViewModels.Report
     {
         public long Id { get; set; }
         public long UserId { get; set; }
-        public string Name { get; set; }
         public string Status { get; set; }
         public string Reason { get; set; }
         public string Description { get; set; }

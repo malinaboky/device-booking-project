@@ -11,7 +11,6 @@ namespace DotNetEd.CoreAdmin.ViewModels.Report
     public class ReportToEdit
     {
         public long Id { get; set; }
-        public string Name { get; set; }
         public string Reason { get; set; }
         public string Description { get; set; }
 

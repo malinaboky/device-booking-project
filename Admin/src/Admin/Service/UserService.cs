@@ -170,7 +170,8 @@ namespace DotNetEd.CoreAdmin.Service
 
         public async Task<UserToEdit> GetUserToEdit(long id)
         {
-            var user = await context.Users.FindAsync(id);
+            var user = await context.Users.Include(u => u.Image)
+                                          .FirstOrDefaultAsync(u => u.Id == id);
 
             if (user == null)
                 return null;
@@ -184,7 +185,8 @@ namespace DotNetEd.CoreAdmin.Service
                 Status = (StatusOfUser)Enum.Parse(typeof(StatusOfUser), user.Status),
                 ConnectLink = user.ConnectLink,
                 DepartmentId = (long)user.DepartmentId,
-                IsBlocked = user.IsBlocked
+                IsBlocked = user.IsBlocked,
+                ImagePath = user.Image == null || downloadService.GetFileToDownload(user.Image.Path) == null ? "/default.png" : "/api/image/newtab/?filePath=" + user.Image.Path
             };
             return userToEdit;
         }
