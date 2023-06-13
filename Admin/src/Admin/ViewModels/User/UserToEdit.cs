@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Database.Models;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -22,8 +23,6 @@ namespace DotNetEd.CoreAdmin.ViewModels.User
         [StringLength(40, ErrorMessage = "Слишком длинная фамилия")]
         public string Secondname { get; set; }
 
-        [Required(ErrorMessage = "Обязательное поле")]
-        [StringLength(40, ErrorMessage = "Слишком длинный никнейм")]
         public string Username { get; set; }
 
         public string ConnectLink { get; set; }
@@ -32,7 +31,7 @@ namespace DotNetEd.CoreAdmin.ViewModels.User
         public StatusOfUser Status { get; set; }
         public string ImagePath { get; set; }
 
-        public long DepartmentId { get; set; }
+        public long? DepartmentId { get; set; }
 
         public IFormFile Image { get; set; }
 

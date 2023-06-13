@@ -11,9 +11,8 @@ using System.Web;
 
 namespace Database.Controllers
 {
-    [Route("api/image")]
     [ApiController]
-    //[Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
+    [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
     [EnableCors("CorsPolicy")]
     public class FileUploadDownloadController : Controller
     {
@@ -30,7 +29,7 @@ namespace Database.Controllers
             _context = context;
         }
 
-        [HttpGet]
+        [HttpGet("api/image")]
         public ActionResult Download([FromQuery] string? filePath)
         {
             var fullPath = _fileDownloadService.GetFileToDownload(filePath);
@@ -52,7 +51,29 @@ namespace Database.Controllers
             };
         }
 
-        [HttpGet("newtab")]
+        [HttpGet("admin/image")]
+        public ActionResult DownloadForAdmin([FromQuery] string? filePath)
+        {
+            var fullPath = _fileDownloadService.GetFileToDownload(filePath);
+
+            if (fullPath == null)
+                return NotFound(new { error = true, message = "Image is not found" });
+
+            var extention = Path.GetExtension(fullPath).ToLowerInvariant();
+            var stream = new FileStream(fullPath, FileMode.Open);
+            var fileName = Path.GetFileName(fullPath);
+            var contentType = MimeMapping.GetMimeMapping(extention);
+
+            if (contentType == null)
+                contentType = "application/octet-stream";
+
+            return new FileStreamResult(stream, contentType)
+            {
+                FileDownloadName = fileName
+            };
+        }
+
+        [HttpGet("admin/image/newtab")]
         public ActionResult DownloadForNewTab([FromQuery] string? filePath)
         {
             var fullPath = _fileDownloadService.GetFileToDownload(filePath);
@@ -74,7 +95,7 @@ namespace Database.Controllers
             return new FileStreamResult(stream, contentType);
         }
 
-        [HttpPost("device/{id}")]
+        [HttpPost("api/image/device/{id}")]
         public async Task<ActionResult> UploadDeviceImg(long id, IFormFile file)
         {
             var device = await _context.Devices.FindAsync(id);
@@ -94,7 +115,7 @@ namespace Database.Controllers
             }
         }
 
-        [HttpPost("user")]
+        [HttpPost("api/image/user")]
         public async Task<ActionResult> UploadUserImage(IFormFile file)
         {
             if (HttpContext.User.Identity?.Name == null)
@@ -121,7 +142,7 @@ namespace Database.Controllers
         }
 
 
-        [HttpPost("report/{reportId}")]
+        [HttpPost("api/image/report/{reportId}")]
         public async Task<ActionResult> UploadReportImage(long reportId, IFormFile file)
         {
             var report = await _context.Reports.Include(r => r.ImageInfos).FirstOrDefaultAsync(r => r.Id == reportId);

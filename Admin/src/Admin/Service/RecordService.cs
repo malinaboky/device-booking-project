@@ -1,6 +1,8 @@
 ﻿using Database;
+using Database.Models;
 using DotNetEd.CoreAdmin.ViewModels.Device;
 using DotNetEd.CoreAdmin.ViewModels.Record;
+using DotNetEd.CoreAdmin.ViewModels.Report;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -34,6 +36,54 @@ namespace DotNetEd.CoreAdmin.Service
                 })
                 .ToListAsync();
             return list;
+        }
+
+        public async Task<string> DeleteRecord(long id)
+        {
+            var record = await context.Records.FindAsync(id);
+
+            if (record == null)
+                return null;
+
+            context.Records.Remove(record);
+
+            try
+            {
+                await context.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                return "Error saving to database";
+            }
+
+            return null;
+        }
+
+        public async Task<string> DeleteRecords(RecordsList list)
+        {
+            var records = new List<Record>();
+            if (list.Records == null)
+                return null;
+            foreach (var record in list.Records)
+                if (record.Selected)
+                {
+                    var info = await context.Records.FindAsync(record.Id);
+                    if (info == null)
+                        continue;
+                    records.Add(info);                 
+                }          
+            if (records.Count > 0)
+                context.Records.RemoveRange(records);
+            try
+            {
+                await context.SaveChangesAsync();
+            }
+            catch (DbUpdateException)
+            {
+                return "Error saving to database";
+            }
+
+            return null;
         }
     }
 }

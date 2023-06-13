@@ -29,7 +29,8 @@
 </head>
 <body>
     <nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
-        <a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="#">Admin</a>
+        @Html.ActionLink("Admin", "Index", "EmployeePage", null, new { @class="navbar-brand col-md-3 col-lg-2 mr-0 px-3"} )
+        @Html.ActionLink("Exit", "Logout", "AdminAuthorization", null, new { @class = "exit" })
         <button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-toggle="collapse" data-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -41,27 +42,12 @@
         <div class="row">
             <nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
                 <div class="sidebar-sticky pt-3">
-
                     @await Component.InvokeAsync("CoreAdminMenu")
-
                 </div>
             </nav>
 
             <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
-
-@*                @if (WebHostEnvionment.EnvironmentName == "Development")
-                {
-                    @if (CoreAdminOptions == null || !CoreAdminOptions.Any() || CoreAdminOptions.All(o => !o.IsSecuritySet))
-                    {
-                        <div class="alert alert-warning mt-3 mb-0" role="alert">
-                            You are running in Development mode. No security has been set on Core Admin. Core Admin will not be accessible in non-Development
-                            environments until security has been set up. See the documentation at <a href="https://github.com/edandersen/core-admin">https://github.com/edandersen/core-admin</a>.
-                        </div>
-                    }
-                }*@
-
                 @RenderBody()
-
             </main>
         </div>
 

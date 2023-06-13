@@ -29,7 +29,7 @@ namespace DotNetEd.CoreAdmin.Service
             this.downloadService = downloadService;
         }
 
-        public async Task CreateDevice(DeviceToCreate formData)
+        public async Task CreateDevice(DeviceToCreate formData, string url)
         {
             var device = new Device
             {
@@ -47,6 +47,7 @@ namespace DotNetEd.CoreAdmin.Service
                 await context.SaveChangesAsync();
                 if (formData.Image != null)
                     await uploadService.UploadPathToDevice(device, formData.Image);
+                await uploadService.UploadPathToDeviceQR(device, url);
             }
             catch(DbUpdateException)
             {
@@ -57,8 +58,6 @@ namespace DotNetEd.CoreAdmin.Service
         public async Task<string> DeleteDevice(long id)
         {
             var device = await context.Devices
-                .Include(d => d.Records)
-                .Include(d => d.TagInfos)
                 .Include(d => d.Image)
                 .FirstOrDefaultAsync(d => d.Id == id);
 
@@ -68,12 +67,6 @@ namespace DotNetEd.CoreAdmin.Service
             var isBooked = device.Records.Any(r => r.Booked);
             if (isBooked)
                 return "Device is booked now";
-
-            if (device.Records != null)
-                context.Records.RemoveRange(device.Records);
-
-            if (device.TagInfos != null)
-                context.TagInfos.RemoveRange(device.TagInfos);
 
             if (device.Image != null)
                 context.Images.Remove(device.Image);
@@ -86,7 +79,7 @@ namespace DotNetEd.CoreAdmin.Service
             }
             catch (DbUpdateException)
             {
-                return"Error saving to database";
+                return "Error saving to database";
             }
 
             return null;
@@ -96,28 +89,22 @@ namespace DotNetEd.CoreAdmin.Service
         {
             var devices = new List<Device>();
 
+            if (list.Devices == null)
+                return null;
+
             foreach (var device in list.Devices)
                 if (device.Selected)
-                    devices.Add(await context.Devices.Include(d => d.Records)
-                        .Include(d => d.TagInfos)
-                        .Include(d => d.Image)
-                        .FirstOrDefaultAsync(d => d.Id == device.Id));
+                    devices.Add(await context.Devices.Include(d => d.Image)
+                                                     .FirstOrDefaultAsync(d => d.Id == device.Id));
 
             var isBooked = devices.Any(d => d.Records.Any(r => r.Booked));
             if (isBooked)
                 return "Device is booked now";
 
-            foreach(var device in devices)
-            {
-                if (device.Records != null)
-                    context.Records.RemoveRange(device.Records);
+            var images = devices.Where(d => d.Image != null).Select(d => d.Image).ToList();
 
-                if(device.TagInfos != null)
-                    context.TagInfos.RemoveRange(device.TagInfos);
-
-                if (device.Image != null)
-                    context.Images.Remove(device.Image);
-            }
+            if (images.Count > 0)
+                context.Images.RemoveRange(images);
 
             context.RemoveRange(devices);
 
@@ -145,8 +132,8 @@ namespace DotNetEd.CoreAdmin.Service
                     Name = d.Name,
                     Os = d.Os == null ? "-" : d.Os.Name,
                     Diagonal = d.Diagonal == null ? 0 : (double)d.Diagonal,
-                    ImagePath = downloadService.GetFileToDownload(d.Image.Path) == null ? "default.png" : "/api/image/?filePath=" + d.Image.Path,
-                    QrPath = downloadService.GetFileToDownload(d.Qr.Path) == null ? "/default.png" : "/api/image/?filePath=" + d.Qr.Path,
+                    ImagePath = downloadService.GetFileToDownload(d.Image.Path) == null ? "default.png" : "/admin/image/?filePath=" + d.Image.Path,
+                    QrPath = downloadService.GetFileToDownload(d.Qr.Path) == null ? "/default.png" : "/admin/image/?filePath=" + d.Qr.Path,
                 })
                 .ToListAsync();
             return list;
@@ -172,8 +159,8 @@ namespace DotNetEd.CoreAdmin.Service
                 Resolution = resolution == null ? new Resolution { Height = "", Width = ""} : new Resolution { Height = resolution[0], Width = resolution[1] },
                 Diagonal = device.Diagonal == null ? "" : device.Diagonal.ToString(),
                 ClassOfDevice = device.Class == null ? null : (ClassOfDevice)Enum.Parse(typeof(ClassOfDevice), device.Class),
-                ImagePath = device.Image == null || downloadService.GetFileToDownload(device.Image.Path) == null ? "/default.png" : "/api/image/newtab/?filePath=" + device.Image.Path
-        };
+                ImagePath = device.Image == null || downloadService.GetFileToDownload(device.Image.Path) == null ? "/default.png" : "/admin/image/newtab/?filePath=" + device.Image.Path
+            };
             return deviceToEdit;
         }
 

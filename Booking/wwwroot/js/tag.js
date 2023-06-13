@@ -97,7 +97,8 @@ function turnSelectAllType(id) {
 }
 
 function saveOs(type, id) {
-    let nameOfTag = document.getElementById(type+id).value;
+    let tag = document.getElementById(type + id);
+    let nameOfTag = tag.value;
 
     const item = {
         Id: id,
@@ -111,9 +112,20 @@ function saveOs(type, id) {
         },
         body: JSON.stringify(item)
     })
-        .then(result => console.log(result.messange))
+        .then((response) => response.json())
+        .then((data) => {
+            let messange = document.getElementById("messange");
+            if (data.messange == "Ok") {
+                tag.style.backgroundColor = "#93C54B";
+            }
+            else {
+                tag.style.backgroundColor = "#FF6C65";
+            }
+            messange.innerHTML = data.messange;
+            $("#messange").fadeIn();
+            setTimeout(function () { $("#messange").fadeOut(); }, 2000);
+        })
         .catch(error => console.error('Unable to add item.', error));
-
 }
 
 function saveTag(type, id) {
@@ -134,22 +146,23 @@ function saveTag(type, id) {
     })
         .then((response) => response.json())
         .then((data) => {
+            let messange = document.getElementById("messange");
             if (data.messange == "Ok") {
                 tag.style.backgroundColor = "#93C54B";
             }
-            else {
-                tag.value = "";
-                tag.placeholder = data.messange;
-                tag.style.backgroundColor = "#A51939";
-                tag.style.color = "white";
+            else {            
+                tag.style.backgroundColor = "#FF6C65";
             }
+            messange.innerHTML = data.messange;
+            $("#messange").fadeIn();
+            setTimeout(function () { $("#messange").fadeOut(); }, 2000); 
         })
         .catch(error => console.error('Unable to add item.', error));
-
 }
 
 function saveType(type, id) {
-    let nameOfTag = document.getElementById(type + id).value;
+    let tag = document.getElementById(type + id);
+    let nameOfTag = tag.value;
 
     const item = {
         Id: id,
@@ -163,7 +176,18 @@ function saveType(type, id) {
         },
         body: JSON.stringify(item)
     })
-        .then(result => console.log(result))
+        .then((response) => response.json())
+        .then((data) => {
+            let messange = document.getElementById("messange");
+            if (data.messange == "Ok") {
+                tag.style.backgroundColor = "#93C54B";
+            }
+            else {
+                tag.style.backgroundColor = "#FF6C65";
+            }
+            messange.innerHTML = data.messange;
+            $("#messange").fadeIn();
+            setTimeout(function () { $("#messange").fadeOut(); }, 2000);
+        })
         .catch(error => console.error('Unable to add item.', error));
-
 }

@@ -42,7 +42,7 @@ namespace Database.Controllers
                 }
 
                 var user = await _context.Users.FirstOrDefaultAsync(user => user.Username == retval.Identity);
-
+              
                 if (user == null)
                     try 
                     {
@@ -54,6 +54,9 @@ namespace Database.Controllers
                     {
                         return BadRequest(new { error = true, message = "Error saving to database" });
                     }
+                if (user.IsBlocked)
+                    return Unauthorized(new { error = true, message = "User is blocked" });
+
                 await Authenticate(user, data.RememberMe, data.TimeZone);
 
                 return Ok(new { message = "User successfully logged in" });

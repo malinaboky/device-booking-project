@@ -16,9 +16,16 @@
     var dic = new Dictionary<long, long>();
     for (var i = 0; i < Model.Reports.Count(); i++)
         dic.Add(Model.Reports[i].Id, (long)i);
+
+    var message = ViewBag.Message as string;
 }
 
-<h1 class="display-4">Репорты</h1>
+<div class="title">
+    <h1 class="display-4">Репорты</h1>
+    @if (message != null) {
+        <label id="error">@message</label>
+    }
+</div>
 
 @using (Html.BeginForm("DeleteAmountPost", "ReportPage", FormMethod.Post, new { @class = "add-form" }))
 {
@@ -39,7 +46,7 @@
                                    .Titled(new PropertyForFiltering { Able = true, Name = "Description" });
 
                             columns.Add(item => Html.ActionLink("Edit", "Edit", new { Id = item.Id }));
-                            columns.Add(item => Html.ActionLink("Delete", "Delete", new { Id = item.Id }));
+                            columns.Add(item => Html.ActionLink("Delete", "DeletePost", new { Id = item.Id }));
                             columns.Add(item => Html.CheckBoxFor(y => y.Reports[(int)dic[item.Id]].Selected, new { @id = $"Selected{dic[item.Id]}", @onclick = $"turnSelectAll({dic[item.Id]})" }))
                                 .Titled(new HtmlString("<input type=\"checkbox\" id=\"SelectAll\" onclick=\"changeAll()\">"));
                         }

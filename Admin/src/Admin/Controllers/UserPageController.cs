@@ -1,15 +1,21 @@
 ﻿using Database;
+using Database.Models;
 using DotNetEd.CoreAdmin.Service;
+using DotNetEd.CoreAdmin.ViewModels;
 using DotNetEd.CoreAdmin.ViewModels.Device;
 using DotNetEd.CoreAdmin.ViewModels.User;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace DotNetEd.CoreAdmin.Controllers
 {
+    [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
     public class UserPageController : Controller
     {
         private readonly DeviceBookingContext context;
@@ -24,6 +30,7 @@ namespace DotNetEd.CoreAdmin.Controllers
 
         public async Task<IActionResult> Index()
         {
+            ViewBag.Message = TempData["shortMessage"]?.ToString();
             return View(new UserList { Users = await userService.GetUsersFromDB()});
         }
 
@@ -33,7 +40,10 @@ namespace DotNetEd.CoreAdmin.Controllers
             var message = await userService.BlockUser(id);
 
             if (message != null)
-                return new JsonResult(new { error = true, message });
+            {
+                TempData["shortMessage"] = message;
+                return RedirectToAction("Index");
+            }
 
             return RedirectToAction("Index");
 
@@ -51,9 +61,28 @@ namespace DotNetEd.CoreAdmin.Controllers
         }
 
         [HttpGet]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            ViewBag.Department = new SelectList(context.Departments, "Id", "Name");
+            var departments = await context.Departments.Select(d => new SelectListItem
+            {
+                Value = d.Id.ToString(),
+                Text = d.Name,
+                Selected = false
+            }).ToListAsync();
+            var status = (Enum.GetValues(typeof(StatusOfUser)).Cast<int>()
+                                                          .Select(e =>
+                                                          new SelectListItem()
+                                                          {
+                                                              Text = Enum.GetName(typeof(StatusOfUser), e),
+                                                              Value = e.ToString(),
+                                                              Selected = false
+                                                          }))
+                                                          .ToList();
+            departments.Add(new SelectListItem { Text = "Не выбран", Value = "", Selected = true });
+            status.Add(new SelectListItem { Text = "Не выбран", Value = "", Selected = true });
+
+            ViewBag.DepartmentId = departments;
+            ViewBag.Status = status;
 
             return View();
         }
@@ -71,7 +100,26 @@ namespace DotNetEd.CoreAdmin.Controllers
                 ModelState.Clear();
             }
 
-            ViewBag.Department = new SelectList(context.Departments, "Id", "Name");
+            var departments = await context.Departments.Select(d => new SelectListItem
+            {
+                Value = d.Id.ToString(),
+                Text = d.Name,
+                Selected = formData.DepartmentId == d.Id
+            }).ToListAsync();
+            var status = (Enum.GetValues(typeof(StatusOfUser)).Cast<int>()
+                                                          .Select(e =>
+                                                          new SelectListItem()
+                                                          {
+                                                              Text = Enum.GetName(typeof(StatusOfUser), e),
+                                                              Value = e.ToString(),
+                                                              Selected = ((int)formData.Status) == e
+                                                          }))
+                                                          .ToList();
+            departments.Add(new SelectListItem { Text = "Не выбран", Value = "", Selected = formData.DepartmentId == null });
+            status.Add(new SelectListItem { Text = "Не выбран", Value = "", Selected = false });
+
+            ViewBag.DepartmentId = departments;
+            ViewBag.Status = status;
 
             return View("Create");
         }
@@ -82,9 +130,21 @@ namespace DotNetEd.CoreAdmin.Controllers
             var user = await userService.GetUserToEdit(id);
 
             if (user == null)
-                return NotFound();
+            {
+                TempData["shortMessage"] = "User is not found";
+                return RedirectToAction("Index");
+            }
 
-            ViewBag.Department = new SelectList(context.Departments, "Id", "Name");
+            var departments = await context.Departments.Select(d => new SelectListItem
+            {
+                Value = d.Id.ToString(),
+                Text = d.Name,
+                Selected = user.DepartmentId != null && d.Id == user.DepartmentId
+            }).ToListAsync();
+            departments.Add(new SelectListItem { Text = "Не выбран", Value = "", Selected = user.DepartmentId == null });
+
+            ViewBag.DepartmentId = departments;
+            ViewBag.Address = $"{Request.Scheme}://{Request.Host}{Request.PathBase}";
 
             return View("Edit", user);
         }
@@ -95,7 +155,10 @@ namespace DotNetEd.CoreAdmin.Controllers
             var user = await context.Users.FindAsync(formData.Id);
 
             if (user == null)
+            {
+                TempData["shortMessage"] = "User is not found";
                 return RedirectToAction("Index");
+            }
 
             if (ModelState.IsValid)
             {
@@ -107,7 +170,18 @@ namespace DotNetEd.CoreAdmin.Controllers
                 return RedirectToAction("Index");
             }
 
-            ViewBag.Department = new SelectList(context.Departments, "Id", "Name");
+            var departments = await context.Departments.Select(d => new SelectListItem
+            {
+                Value = d.Id.ToString(),
+                Text = d.Name,
+                Selected = formData.DepartmentId != null &&  formData.DepartmentId == d.Id
+            }).ToListAsync();
+            departments.Add(new SelectListItem { Text = "Не выбран", Value = "", Selected = formData.DepartmentId == null });
+
+            ViewBag.DepartmentId = departments;
+            ViewBag.Address = $"{Request.Scheme}://{Request.Host}{Request.PathBase}";
+
+            formData.ImagePath ??= "/default.png";
 
             return View("Edit", formData);
         }

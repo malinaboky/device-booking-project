@@ -1,0 +1,123 @@
+﻿* {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+html, body {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    position: relative;
+    background: #343a40;
+    font-family: 'Roboto', helvetica, arial, sans-serif;
+    font-size: 1.5em;
+}
+
+.login-form {
+    width: 100%;
+    padding: 2em;
+    position: relative;
+    background: #212529;
+    width: 50vw;
+    max-width: 15em;
+}
+
+.login-form::before{
+     content: '';
+     position: absolute;
+     top: -2px;
+     left: 0;
+     height: 2px;
+     width: 100%;
+     background: #212529;
+}
+
+.flex-row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 1em;
+}
+
+.form-label {
+    width: 2em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f5f6f8;
+    cursor: pointer;
+}
+
+.form-input {
+    flex: 1;
+    padding: 1em;
+    border: 0;
+    color: #8f8f8f;
+    font-size: 1rem;
+}
+
+.form-input:focus{
+    outline: none;
+    transition: transform .15s ease;
+}
+
+.lf--submit {
+    display: block;
+    padding: 1em;
+    width: 100%;
+    background: #007bff;
+    border: 0;
+    color: #fff;
+    cursor: pointer;
+    font-size: .75em;
+    font-weight: 600;
+    text-shadow: 0 1px 0 rgba(black, .2);
+}
+
+.lf--submit:focus {
+    outline: none;
+    transition: transform .15s ease;
+    transform: scale(1.1);
+}
+
+::placeholder {
+    color: gray;
+}
+
+.checkbox-label {
+    font-size: 1rem;
+    color: white;
+}
+
+.form-checkbox {
+    width: 30px;
+    border: none;
+    margin: 0;
+    accent-color: #007bff;
+}
+
+.text-danger {
+    margin-top: 10px;
+    font-size: 1rem;
+    color: white;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+}
+
+.warning {
+    font-size: 1rem;
+    color: white;
+    background-color: rgba(155, 31, 26, 0.8);
+    height: 40px;
+    line-height: 40px;
+    padding-left: 8px;
+}
+
+.warning:before{
+    opacity: 0.4;
+}

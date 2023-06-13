@@ -1,0 +1,39 @@
+﻿@using Admin.ViewModels.Department
+@using DotNetEd.CoreAdmin
+@using Microsoft.AspNetCore.Http
+
+@model DepartmentToCreate
+
+@{
+    ViewData["Page_Title"] = "Создание департамента";
+    Layout = "_CoreAdminLayout";
+
+    var flag = HttpMethods.IsPost(Context.Request.Method) && ViewBag.SuccessMessage == null;
+}
+
+<link type="text/css" href="~/css/basicstyle.css" rel="stylesheet" />
+<h1 class="display-4">Создание департамента</h1>
+
+
+@using (Html.BeginForm("Create", "DepartmentPage", FormMethod.Post, new { enctype = "multipart/form-data", @class = "add-form" }))
+{
+    <div class="info-panel">
+        <div class="form-row">
+            <div class="row-name">
+                <label>Адрес</label>
+            </div>
+            <br />
+            <input type="text" class="field" asp-for="Name" name="Name" value="@(flag ? Model.Name : "")" />
+            <br />
+            @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+        </div>
+        <br />
+      
+        <div class="form-row submit-panel">
+            <button type="submit" class="btn btn-primary submit-button">Save</button>
+            @Html.ActionLink("No, go back", "Index", "DepartmentPage", null, new { @class = "back-link" })
+        </div>
+    </div>  
+}
+
+<script src="~/js/edit.js"></script>

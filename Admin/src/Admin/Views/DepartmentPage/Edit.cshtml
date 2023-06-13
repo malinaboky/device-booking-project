@@ -1,0 +1,36 @@
+﻿@using Admin.ViewModels.Department
+@using DotNetEd.CoreAdmin
+
+@model DepartmentToEdit
+
+@{
+    ViewData["Page_Title"] = "Редактирование департамента";
+    Layout = "_CoreAdminLayout";
+}
+
+<link type="text/css" href="~/css/basicstyle.css" rel="stylesheet" />
+<h1 class="display-4">Редактирование департамента</h1>
+
+
+@using (Html.BeginForm("Edit", "DepartmentPage", FormMethod.Post, new { enctype = "multipart/form-data", @class = "add-form user-page" }))
+{
+    <div class="info-panel">
+        <input type="hidden" name="Id" value="@Model.Id" />
+        <div class="form-row">
+            <div class="row-name">
+                <label>Адрес</label>
+            </div>
+            <br />
+            <input type="text" class="field" asp-for="Name" name="Name" value="@Model.Name" />
+            <br />
+            @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+        </div>
+        <br />
+        <div class="form-row submit-panel">
+            <button type="submit" class="btn btn-primary submit-button">Save</button>
+            @Html.ActionLink("No, go back", "Index", "DepartmentPage", null, new { @class = "back-link" })
+        </div>
+    </div>
+}
+
+<script src="~/js/edit.js"></script>

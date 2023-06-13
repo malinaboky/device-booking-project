@@ -3,6 +3,10 @@ using Database.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Http;
+using QRCoder;
+using System.Drawing;
+using Image = Database.Models.Image;
+using System.Collections;
 
 namespace Database.Services
 {
@@ -34,6 +38,42 @@ namespace Database.Services
                 await _context.SaveChangesAsync();
 
                 device.Image = image;
+                _context.Entry(device).State = EntityState.Modified;
+                await _context.SaveChangesAsync();
+
+                return true;
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> UploadPathToDeviceQR(Device device, string url)
+        {
+            url += device.Id;
+            QRCodeGenerator QrGenerator = new QRCodeGenerator();
+            QRCodeData QrCodeInfo = QrGenerator.CreateQrCode(url, QRCodeGenerator.ECCLevel.Q);
+            QRCode QrCode = new QRCode(QrCodeInfo);
+            Bitmap QrBitmap = QrCode.GetGraphic(60);
+            byte[] file = QrBitmap.BitmapToByteArray();
+            var stream = new MemoryStream(file);
+            var path = await UploadFile(new FormFile(stream, 0, file.Length, "image/png", "qr.png"), "QR", device.Id.ToString());
+
+            if (path.Length == 0)
+                return false;
+
+            try
+            {
+                var image = await _context.Images.FindAsync(device.QrId);
+                if (image != null)
+                    _context.Images.Remove(image);
+
+                image = new Image { Path = path };
+                _context.Images.Add(image);
+                await _context.SaveChangesAsync();
+
+                device.Qr = image;
                 _context.Entry(device).State = EntityState.Modified;
                 await _context.SaveChangesAsync();
 

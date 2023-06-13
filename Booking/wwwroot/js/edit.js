@@ -4,7 +4,6 @@ function checkPath() {
     path = document.getElementById("old-pic").src;
 }
 
-
 function imageOnClick(path) {
     window.open(path);
     return false;

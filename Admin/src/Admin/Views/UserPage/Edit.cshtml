@@ -1,4 +1,5 @@
-﻿@using DotNetEd.CoreAdmin.ViewModels.User
+﻿@using Database.Models
+@using DotNetEd.CoreAdmin.ViewModels.User
 @using DotNetEd.CoreAdmin.ViewModels
 
 @model UserToEdit
@@ -44,7 +45,7 @@
                 <label>Никнейм</label>
             </div>
             <br />
-            <input type="text" class="field" asp-for="Username" name="Username" value="@Model.Username" />
+            <input type="text" class="field" asp-for="Username" name="Username" value="@Model.Username" disabled />
             <br />
             @Html.ValidationMessageFor(model => model.Username, "", new { @class = "text-danger"})
         </div>
@@ -74,7 +75,7 @@
                 <label>Департамент</label>
             </div>
             <br />
-            @Html.DropDownList("DepartmentId", departmentList, new { @class = "field"})
+            @Html.DropDownListFor(model => model.DepartmentId, ViewBag.DepartmentId as SelectList, new { @class = "field"})
             <br />
             @Html.ValidationMessageFor(model => model.DepartmentId, "", new { @class = "text-danger" })
         </div>
@@ -95,7 +96,7 @@
     <div class="image-panel">
         <div id="img-preview">
             @{
-                var newPath = "http://localhost:5294" + Model.ImagePath.Replace("\\", "\\\\");
+                var newPath = ViewBag.Address + Model.ImagePath.Replace("\\", "\\\\");
                 <input type="hidden" value="@Model.ImagePath" name="ImagePath" asp-for="ImagePath" />
                 ;
                 <a title="Нажмите, для просмотра в полном размере" href="#" onclick="imageOnClick('@newPath')" class="img-link">

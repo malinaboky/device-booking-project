@@ -38,7 +38,7 @@ namespace Database.Controllers
             if (user == null)
                 return NotFound(new { error = true, message = "User is not found" });
 
-            var newReport = new Report { Reason = report.Reason, Description = report.Description, User = user};
+            var newReport = new Report { Reason = report.Reason, Description = report.Description, User = user, Status = StatusOfReports.Open.ToString()};
 
             _context.Reports.Add(newReport);
             try 

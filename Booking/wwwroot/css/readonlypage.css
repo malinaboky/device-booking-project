@@ -75,3 +75,34 @@ div.submit-panel {
     margin-right: 2px;
     margin-top: 2px;
 }
+
+.form-label {
+    width: 3em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f5f6f8;
+    cursor: pointer;
+    margin-bottom: 0;
+    margin-top: 5px;
+    border: 0.5px solid;
+    border-radius: 0 0.25rem 0.25rem 0;
+}
+
+.password {
+    border: 0.5px solid;
+    border-radius: 0.25rem 0 0 0.25rem;
+}
+
+.enable {
+    display: none;
+}
+
+.password-row {
+    width: 280px;
+}
+
+.condition-list {
+    padding-left: 20px;
+    margin: 0;
+}

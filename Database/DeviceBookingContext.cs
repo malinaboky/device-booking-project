@@ -2,15 +2,22 @@
 
 using Database.Models;
 using Type = Database.Models.Type;
+using Microsoft.Extensions.Configuration;
+using Database.Configure;
+using Microsoft.Extensions.Options;
+using System.Data;
 
 namespace Database
 {
     public partial class DeviceBookingContext : DbContext
     {
-        public DeviceBookingContext(DbContextOptions<DeviceBookingContext> options)
+        private readonly AdminAuthorizationInfo authorizationInfo;
+        public DeviceBookingContext(DbContextOptions<DeviceBookingContext> options, 
+            IOptions<AdminAuthorizationInfo> authorizationInfo)
             : base(options)
         {
-            Database.EnsureCreated();
+            this.authorizationInfo = authorizationInfo.Value;
+            Database.EnsureCreated();          
         }
 
         public virtual DbSet<Department> Departments { get; set; } = null!;
@@ -24,6 +31,7 @@ namespace Database
         public virtual DbSet<User> Users { get; set; } = null!;
         public virtual DbSet<ImageInfo> ImageInfos { get; set; } = null!;
         public virtual DbSet<Report> Reports { get; set; } = null!;
+        public virtual DbSet<Employee> Employees { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -150,12 +158,12 @@ namespace Database
                 entity.HasOne(d => d.Device)
                     .WithMany(p => p.Records)
                     .HasForeignKey(d => d.DeviceId)
-                    .OnDelete(DeleteBehavior.ClientSetNull);
+                    .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.Records)
                     .HasForeignKey(d => d.UserId)
-                    .OnDelete(DeleteBehavior.ClientSetNull);
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<Tag>(entity =>
@@ -188,12 +196,12 @@ namespace Database
                 entity.HasOne(d => d.Device)
                     .WithMany(p => p.TagInfos)
                     .HasForeignKey(d => d.DeviceId)
-                    .OnDelete(DeleteBehavior.ClientSetNull);
+                    .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasOne(d => d.Tag)
                     .WithMany(p => p.TagInfos)
                     .HasForeignKey(d => d.TagId)
-                    .OnDelete(DeleteBehavior.ClientSetNull);
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<Type>(entity =>
@@ -265,12 +273,12 @@ namespace Database
                 entity.HasOne(d => d.Image)
                     .WithMany(p => p.ImageInfos)
                     .HasForeignKey(d => d.ImageId)
-                    .OnDelete(DeleteBehavior.ClientSetNull);
+                    .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasOne(d => d.Report)
                     .WithMany(p => p.ImageInfos)
                     .HasForeignKey(d => d.ReportId)
-                    .OnDelete(DeleteBehavior.ClientSetNull);
+                    .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<Report>(entity =>
@@ -292,11 +300,49 @@ namespace Database
                 entity.HasOne(e => e.User)
                      .WithMany(e => e.Reports)
                      .HasForeignKey(e => e.UserId)
-                     .OnDelete(DeleteBehavior.ClientSetNull);
+                     .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasOne(e => e.Reviewer)
                      .WithMany(e => e.ConsideredReports)
                      .HasForeignKey(e => e.ReviewerId);
+            });
+
+            modelBuilder.Entity<Employee>(entity =>
+            {
+                entity.ToTable("employee");
+
+                entity.Property(e => e.Id)
+                      .HasColumnType("bigint")
+                      .ValueGeneratedOnAdd();
+
+                entity.Property(e => e.Login).HasMaxLength(100);
+
+                entity.Property(e => e.Password).HasMaxLength(255);
+
+                entity.Property(e => e.Status).HasMaxLength(255);
+
+                entity.HasAlternateKey(e => e.Login);
+            });
+
+            modelBuilder.Entity<Employee>().HasData(new Employee[] { 
+                new Employee {
+                    Id = 1,
+                    Login = authorizationInfo.Admin.Login, 
+                    Password = authorizationInfo.Admin.Password, 
+                    Status = StatusOfUser.Admin.ToString()
+                }, 
+                new Employee {
+                    Id = 2,
+                    Login = authorizationInfo.Viewer.Login, 
+                    Password = authorizationInfo.Viewer.Password, 
+                    Status = StatusOfUser.Viewer.ToString()
+                },
+                new Employee {
+                    Id = 3,
+                    Login = authorizationInfo.Editor.Login,
+                    Password = authorizationInfo.Editor.Password,
+                    Status = StatusOfUser.Editor.ToString()
+                }
             });
 
             OnModelCreatingPartial(modelBuilder);

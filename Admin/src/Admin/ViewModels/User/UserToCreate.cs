@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Admin.Attributes;
+using Database.Models;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -22,6 +24,7 @@ namespace DotNetEd.CoreAdmin.ViewModels.User
 
         [Required(ErrorMessage = "Обязательное поле")]
         [StringLength(40, ErrorMessage = "Слишком длинный никнейм")]
+        [Unique]
         public string Username { get; set; }
 
         public string ConnectLink { get; set; }
@@ -29,7 +32,7 @@ namespace DotNetEd.CoreAdmin.ViewModels.User
         [Required(ErrorMessage = "Обязательное поле")]
         public StatusOfUser Status { get; set; }
 
-        public long DepartmentId { get; set; }
+        public long? DepartmentId { get; set; }
 
         public IFormFile Image { get; set; }
 

@@ -15,11 +15,18 @@
     var dic = new Dictionary<long, long>();
     for (var i = 0; i < Model.Users.Count(); i++)
         dic.Add(Model.Users[i].Id, (long)i);
+
+    var message = ViewBag.Message as string;
 }
 
 <link rel="stylesheet" href="~/css/style.css">
 
-<h1 class="display-4">Пользователи</h1>
+<div class="title">
+    <h1 class="display-4">Пользователи</h1>
+    @if (message != null) {
+        <label id="error">@message</label>
+    }
+</div>
 
 @using (Html.BeginForm("BlockAmountPost", "UserPage", FormMethod.Post, new { @class = "add-form" }))
 {

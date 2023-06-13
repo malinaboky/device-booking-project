@@ -95,14 +95,14 @@ namespace DotNetEd.CoreAdmin.Service
         public async Task DeleteTags(List<TagDTO> info)
         {
             var list = new List<Tag>();
+
+            if (info == null)
+                return;
+
             foreach (var tag in info)
                 if (tag.Selected)
-                    list.Add(await context.Tags.Include(t => t.TagInfos).FirstOrDefaultAsync(t => t.Id == tag.Id));
+                    list.Add(await context.Tags.FindAsync(tag.Id));
 
-            var tagInfos = list.Where(t => t.TagInfos != null).SelectMany(t => t.TagInfos).ToList();
-
-            if (tagInfos.Count > 0)
-                context.TagInfos.RemoveRange(tagInfos);
             if (list.Count > 0)
                 context.Tags.RemoveRange(list);
             try
@@ -119,12 +119,23 @@ namespace DotNetEd.CoreAdmin.Service
         {
             var list = new List<Type>();
 
+            if (info == null)
+                return;
+
             foreach (var type in info)
                 if (type.Selected)
-                    list.Add(await context.Types.FindAsync(type.Id));
-
+                {
+                    var tag = await context.Types.Include(t => t.Devices).FirstOrDefaultAsync(t => t.Id == type.Id);
+                    if (tag != null)
+                    {
+                        _ = tag.Devices.Select(d => d.TypeId = null);
+                        list.Add(tag);
+                    }
+                }
+                    
             if (list.Count > 0)
                 context.Types.RemoveRange(list);
+
             try
             {
                 await context.SaveChangesAsync();
@@ -140,13 +151,22 @@ namespace DotNetEd.CoreAdmin.Service
         {
             var list = new List<Os>();
 
+            if (info == null)
+                return;
+
             foreach (var os in info)
                 if (os.Selected)
-                    list.Add(await context.Os.Include(o => o.Devices).FirstOrDefaultAsync( o => o.Id == os.Id));
-
+                {
+                    var tag = await context.Os.Include(o => o.Devices).FirstOrDefaultAsync(o => o.Id == os.Id);
+                    if (tag != null)
+                    {
+                        _ = tag.Devices.Select(d => d.OsId = null);
+                        list.Add(tag);
+                    }
+                }
+           
             if (list.Count > 0)
-                context.Os.RemoveRange(list);
-                
+                context.Os.RemoveRange(list);              
             try
             {
                 await context.SaveChangesAsync();
@@ -177,7 +197,7 @@ namespace DotNetEd.CoreAdmin.Service
             {
                 await context.SaveChangesAsync();
             }
-            catch (DbUpdateException)
+            catch 
             {
                 return "Error saving to database";
             }
@@ -204,7 +224,7 @@ namespace DotNetEd.CoreAdmin.Service
             {
                 await context.SaveChangesAsync();
             }
-            catch (DbUpdateException)
+            catch 
             {
                 return "Error saving to database";
             }
@@ -231,12 +251,74 @@ namespace DotNetEd.CoreAdmin.Service
             {
                 await context.SaveChangesAsync();
             }
-            catch (DbUpdateException)
+            catch 
             {
                 return "Error saving to database";
             }
 
             return "Ok";
+        }
+
+        public async Task DeleteTag(long id)
+        {
+            var tag = await context.Tags.FindAsync(id);
+
+            if (tag == null)
+                return;
+            
+            context.Tags.Remove(tag);
+
+            try
+            {
+                await context.SaveChangesAsync();
+                return;
+            }
+            catch
+            {
+                return;
+            }
+        }
+
+        public async Task DeleteOs(long id)
+        {
+            var os = await context.Os.Include(o => o.Devices).FirstOrDefaultAsync(o => o.Id == id);
+
+            if (os == null)
+                return;
+
+            _ = os.Devices.Select(d => d.OsId = null);
+            context.Os.Remove(os);
+
+            try
+            {
+                await context.SaveChangesAsync();
+                return;
+            }
+            catch
+            {
+                return;
+            }
+        }
+
+        public async Task DeleteType(long id)
+        {
+            var type = await context.Types.Include(o => o.Devices).FirstOrDefaultAsync(o => o.Id == id);
+
+            if (type == null)
+                return;
+
+            _ = type.Devices.Select(d => d.TypeId = null);
+            context.Types.Remove(type);
+
+            try
+            {
+                await context.SaveChangesAsync();
+                return;
+            }
+            catch
+            {
+                return;
+            }
         }
     }
 }

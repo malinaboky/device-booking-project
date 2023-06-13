@@ -44,3 +44,7 @@ function truncate() {
             texts[i].innerHTML = texts[i].innerText.substring(0, 250) + '...';
     }
 };
+
+setTimeout(function () {
+    $('#error').fadeOut('slow');
+}, 2000);

@@ -6,7 +6,6 @@
 @{
     ViewData["Page_Title"] = "Добавление пользователя";
     Layout = "_CoreAdminLayout";
-    SelectList departmentList = ViewBag.Department;
 }
 
 <link type="text/css" href="~/css/mainpage.css" rel="stylesheet" />
@@ -62,7 +61,7 @@
             <label>Статус</label>
         </div>
         <br />
-        @Html.DropDownList("Status", Html.GetEnumSelectList(typeof(StatusOfUser)), string.Empty, new { @class = "field" } )
+        @Html.DropDownListFor(model => model.Status, ViewBag.Status as SelectList, new { @class = "field" } )
         <br />
         @Html.ValidationMessageFor(model => model.Status, "", new { @class = "text-danger" })
     </div>
@@ -72,7 +71,7 @@
             <label>Департамент</label>
         </div>
         <br />
-        @Html.DropDownList("DepartmentId", departmentList, new { @class = "field"})
+        @Html.DropDownListFor(model => model.DepartmentId, ViewBag.DepartmentId as SelectList, new { @class = "field"})
         <br />
         @Html.ValidationMessageFor(model => model.DepartmentId, "", new { @class = "text-danger" })
     </div>

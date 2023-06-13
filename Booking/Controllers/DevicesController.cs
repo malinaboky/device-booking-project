@@ -17,7 +17,7 @@ namespace Database.Controllers
 {
     [Route("api/device")]
     [ApiController]
-    //[Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
+    [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
     [EnableCors("CorsPolicy")]
     public class DevicesController : ControllerBase
     {

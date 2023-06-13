@@ -99,7 +99,7 @@
      <div class="image-panel">
         <div id="img-preview">
             @{
-                var newPath = "http://localhost:5294" + Model.ImagePath.Replace("\\", "\\\\");
+                var newPath = ViewBag.Address + Model.ImagePath.Replace("\\", "\\\\");
                 <input type="hidden" value="@Model.ImagePath" name="ImagePath" asp-for="ImagePath"/>;
                 <a title="Нажмите, для просмотра в полном размере" href="#" onclick="imageOnClick('@newPath')" class="img-link">
                     <img src="@newPath" height="200" id="old-pic" />

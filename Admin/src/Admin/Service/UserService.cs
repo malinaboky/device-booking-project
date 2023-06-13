@@ -33,6 +33,7 @@ namespace DotNetEd.CoreAdmin.Service
         {
             var user = await context.Users
               .Include(u => u.Records)
+              .Include(u => u.ConsideredReports)
               .Include(u => u.Image)
               .FirstOrDefaultAsync(u => u.Id == id);
 
@@ -45,6 +46,7 @@ namespace DotNetEd.CoreAdmin.Service
                 context.Images.Remove(user.Image);
 
             user.Records.ToList().ForEach(r => r.Booked = false);
+            user.ConsideredReports.ToList().ForEach(r => r.ReviewerId = null);
 
             context.Entry(user).State = EntityState.Modified;
            
@@ -62,21 +64,29 @@ namespace DotNetEd.CoreAdmin.Service
 
         public async Task<string> BlockUsers(UserList list)
         {
+            if (list == null)
+                return null;
+
             var users = list.Users.Where(u => u.Selected)
                                   .Select(async u => await context.Users.Include(u => u.Image)
                                                                         .Include(u => u.Records)
+                                                                        .Include(u => u.ConsideredReports)
                                                                         .FirstOrDefaultAsync(e => e.Id == u.Id))
                                   .Select(u => u.Result)
                                   .ToList();
 
             var images = users.Where(u => u.Image != null).Select(u => u.Image).ToList();
             var records = users.SelectMany(u => u.Records).ToList();
+            var reports = users.SelectMany(u => u.ConsideredReports).ToList();
 
             if (images.Count > 0)
                 context.Images.RemoveRange(images);
 
             if (records.Count > 0)
                 records.ForEach(r => r.Booked = false);
+
+            if (reports.Count > 0)
+                reports.ForEach(r => r.ReviewerId = null);
 
             users.ForEach(u => u.IsBlocked = true);
             
@@ -100,7 +110,7 @@ namespace DotNetEd.CoreAdmin.Service
                 {
                     Id = u.Id,
                     Name = $"{u.Firstname} {u.Secondname}",
-                    ImagePath = downloadService.GetFileToDownload(u.Image.Path) == null ? "default.png" : "/api/image/?filePath=" + u.Image.Path,
+                    ImagePath = downloadService.GetFileToDownload(u.Image.Path) == null ? "default.png" : "/admin/image/?filePath=" + u.Image.Path,
                     Status = u.Status,
                     isBlocked = u.IsBlocked
                 })
@@ -136,7 +146,6 @@ namespace DotNetEd.CoreAdmin.Service
         {
             user.Firstname = char.ToUpper(formData.Firstname[0]) + formData.Firstname[1..].ToLower();
             user.Secondname = char.ToUpper(formData.Secondname[0]) + formData.Secondname[1..].ToLower();
-            user.Username = formData.Username;
             user.Status = formData.Status.ToString();
             user.ConnectLink = formData.ConnectLink;
             user.DepartmentId = formData.DepartmentId;
@@ -184,9 +193,9 @@ namespace DotNetEd.CoreAdmin.Service
                 Username = user.Username,
                 Status = (StatusOfUser)Enum.Parse(typeof(StatusOfUser), user.Status),
                 ConnectLink = user.ConnectLink,
-                DepartmentId = (long)user.DepartmentId,
+                DepartmentId = user.DepartmentId,
                 IsBlocked = user.IsBlocked,
-                ImagePath = user.Image == null || downloadService.GetFileToDownload(user.Image.Path) == null ? "/default.png" : "/api/image/newtab/?filePath=" + user.Image.Path
+                ImagePath = user.Image == null || downloadService.GetFileToDownload(user.Image.Path) == null ? "/default.png" : "/admin/image/newtab/?filePath=" + user.Image.Path
             };
             return userToEdit;
         }

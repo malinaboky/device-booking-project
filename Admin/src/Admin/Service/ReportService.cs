@@ -34,15 +34,14 @@ namespace DotNetEd.CoreAdmin.Service
                 .Include(d => d.ImageInfos)
                 .FirstOrDefaultAsync(d => d.Id == id);
 
-            var listImages = new List<Image>();
-            foreach (var info in report.ImageInfos)
-                listImages.Add(await context.Images.FindAsync(info.ImageId));
-
             if (report == null)
                 return "Report is not found";
 
+            var listImages = new List<Image>();
+            foreach (var info in report.ImageInfos)
+                listImages.Add(await context.Images.FindAsync(info.ImageId));
+     
             context.Images.RemoveRange(listImages);
-            context.ImageInfos.RemoveRange(report.ImageInfos);
             context.Reports.Remove(report);
 
             try
@@ -57,20 +56,50 @@ namespace DotNetEd.CoreAdmin.Service
             return null;
         }
 
-        public async Task<List<string>> DeleteReports(ReportsList list)
+        public async Task<string> DeleteReports(ReportsList list)
         {
-            var listMessages = new List<string>();
+            var reports = new List<Report>();
+            var images = new List<Image>();
+            if (list.Reports == null)
+                return null;
             foreach (var report in list.Reports)
+                if (report.Selected)
+                {
+                    var info = await context.Reports.Include(r => r.ImageInfos)
+                                                    .FirstOrDefaultAsync(r => r.Id == report.Id);
+                    if (info == null)
+                        continue;
+                    reports.Add(info);
+                    if (info.ImageInfos.Count == 0)
+                        continue;
+                    foreach(var image in info.ImageInfos)
+                        images.Add(await context.Images.FindAsync(image.ImageId));                  
+                }
+            if (images.Count > 0)
+                context.Images.RemoveRange(images);
+            if (reports.Count > 0)
+                context.Reports.RemoveRange(reports);
+            try
             {
-                var message = await DeleteReport(report.Id);
-                if (message != null)
-                    listMessages.Add(message);
+                await context.SaveChangesAsync();
             }
-            return listMessages;
+            catch (DbUpdateException)
+            {
+                return "Error saving to database";
+            }
+
+            return null;
         }
 
         public async Task<List<ReportDTO>> GetReportsFromDB()
         {
+            Dictionary<string, string> reportMap = new()
+            {
+                { "Open", "Открыт"},
+                { "UnderConsider", "В рассмотрении"},
+                {"InProgress", "В процессе" },
+                {"Close", "Закрыт"}
+            };
             var reports = await context.Reports
                 .Select(r => new ReportDTO
                 {
@@ -78,19 +107,9 @@ namespace DotNetEd.CoreAdmin.Service
                     UserId = r.UserId,
                     Reason = r.Reason,
                     Description = r.Description,
-                    Status = r.Status
+                    Status = reportMap[r.Status]
                 }).ToListAsync();
             return reports;
-        }
-
-        public async Task<ReportToDelete> GetReportToDelete(long id)
-        {
-            var report = await context.Reports.FindAsync(id);
-
-            if (report == null)
-                return null;
-
-            return new ReportToDelete { Id = report.Id };
         }
 
         public async Task<ReportToEdit> GetReportToEdit(long id)
@@ -112,7 +131,7 @@ namespace DotNetEd.CoreAdmin.Service
                 UserName = $"{report.User.Firstname} {report.User.Secondname}",
                 ReviewerId = report.ReviewerId,
                 Images = imageInfos.Select(i => 
-                downloadService.GetFileToDownload(i.Image.Path) == null ? "/default.png" : "/api/image/newtab/?filePath=" + i.Image.Path).ToList()
+                downloadService.GetFileToDownload(i.Image.Path) == null ? "/default.png" : "/admin/image/newtab/?filePath=" + i.Image.Path).ToList()
             };
             return reportToEdit;
         }

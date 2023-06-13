@@ -23,3 +23,25 @@ input[type="checkbox"] {
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
+#messange {
+    padding: 5px 12px;
+    margin: 0 30%;
+    font-size: 20px;
+    border: solid 1px;
+    border-radius: 20px;
+    display: none;
+}
+
+#error {
+    padding: 5px 12px;
+    margin: 0 20%;
+    font-size: 20px;
+    border: solid 1px;
+    border-radius: 20px;
+}
+
+.title {
+    display: flex;
+    align-items: end;
+}

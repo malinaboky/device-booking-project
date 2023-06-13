@@ -29,7 +29,12 @@
 
 <link type="text/css" href="~/css/basicstyle.css" rel="stylesheet" />
 <link rel="stylesheet" href="~/css/style.css">
-<h1 class="display-4">Теги</h1>
+
+<div class="title">
+    <h1 class="display-4">Теги</h1>
+    <label id="messange">Save</label>
+</div>
+
 
 <div class="tag-panel">
     <div>
@@ -50,7 +55,7 @@
                     .Titled(new PropertyForFiltering { Able = true, Name = "Name" });
 
                     columns.Add(item => new HtmlString($"<button class='save-tag' type='button' onclick=\"saveTag('{item.Type}',{item.Id})\">Save</>"));
-                    columns.Add(item => Html.ActionLink("Delete", "Delete", new { Id = item.Id }));
+                    columns.Add(item => Html.ActionLink("Delete", "DeleteTagPost", new { Id = item.Id }));
                     columns.Add(item => Html.CheckBoxFor(y => y.ListTag[(int)dicTag[item.Id]].Selected, new { @id = $"SelectedTag{dicTag[item.Id]}", @onclick = $"turnSelectAllTag({dicTag[item.Id]})" }))
                     .Titled(new HtmlString("<input type=\"checkbox\" id=\"SelectAllTag\" onclick=\"changeAllTag()\">"));
                 }
@@ -84,7 +89,7 @@
                     .Titled(new PropertyForFiltering { Able = true, Name = "Name" });
 
                     columns.Add(item => new HtmlString($"<button class='save-tag' type='button' onclick=\"saveOs('{item.Type}',{item.Id})\">Save</>"));
-                    columns.Add(item => Html.ActionLink("Delete", "Delete", new { Id = item.Id }));
+                    columns.Add(item => Html.ActionLink("Delete", "DeleteOsPost", new { Id = item.Id }));
                     columns.Add(item => Html.CheckBoxFor(y => y.ListOs[(int)dicOs[item.Id]].Selected, new { @id = $"SelectedOs{dicOs[item.Id]}", @onclick = $"turnSelectAllOs({dicOs[item.Id]})" }))
                     .Titled(new HtmlString("<input type=\"checkbox\" id=\"SelectAllOs\" onclick=\"changeAllOs()\">"));
                 }
@@ -119,7 +124,7 @@
                     .Titled(new PropertyForFiltering { Able = true, Name = "Name" });
 
                     columns.Add(item => new HtmlString($"<button class='save-tag' type='button' onclick=\"saveType('{item.Type}',{item.Id})\">Save</>"));
-                    columns.Add(item => Html.ActionLink("Delete", "Delete", new { Id = item.Id }));
+                    columns.Add(item => Html.ActionLink("Delete", "DeleteTypePost", new { Id = item.Id }));
                     columns.Add(item => Html.CheckBoxFor(y => y.ListType[(int)dicType[item.Id]].Selected, new { @id = $"SelectedType{dicType[item.Id]}", @onclick = $"turnSelectAllType({dicType[item.Id]})" }))
                     .Titled(new HtmlString("<input type=\"checkbox\" id=\"SelectAllType\" onclick=\"changeAllType()\">"));
                 }

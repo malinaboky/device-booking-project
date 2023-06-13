@@ -1,4 +1,5 @@
-﻿@using DotNetEd.CoreAdmin
+﻿@using Database.Models
+@using DotNetEd.CoreAdmin
 @using DotNetEd.CoreAdmin.ViewModels
 @using DotNetEd.CoreAdmin.ViewModels.Report
 
@@ -23,7 +24,7 @@
                 <label>Статус</label>
             </div>
             <br />
-            @Html.DropDownList("Status", Html.GetEnumSelectList(typeof(StatusOfReports)), Model.Status.ToString(), new { @class = "field" } )
+            @Html.DropDownList("Status", Html.GetEnumSelectList(typeof(StatusOfReports)), new { @class = "field" } )
             <br />
             @Html.ValidationMessageFor(model => model.Status, "", new { @class = "text-danger" })
         </div>
@@ -67,7 +68,7 @@
             <div class="images">
                 @foreach (var path in Model.Images)
                 {
-                    var newPath = "http://localhost:5294" + path;
+                    var newPath = ViewBag.Address + path;
                     <a title="Нажмите, для просмотра в полном размере" href="#" onclick="imageOnClick('@newPath')">
                         <img src="@newPath" height="100" />
                     </a>

@@ -99,3 +99,15 @@
     h1.display-4 {
         padding-top: 20px;
     }
+
+
+.exit {
+    color: white;
+    font-size: 15px;
+    position: absolute;
+    right: 25px;
+}
+
+.exit:hover {
+    color: azure;
+}

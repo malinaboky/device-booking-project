@@ -2,20 +2,31 @@
 using Database.Models;
 using DotNetEd.CoreAdmin.Service;
 using DotNetEd.CoreAdmin.ViewModels.Device;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace DotNetEd.CoreAdmin.Controllers
 {
+
+    [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
     public class DevicePageController : Controller
     {
         private readonly DeviceBookingContext context;
         private readonly DeviceService deviceService;
-
+        private static readonly Dictionary<string, string> MapDevice = new()
+        {
+            {"Budget", "Бюджетный" },
+            {"MidRange", "Среднебюджетный" },
+            {"Flagship", "Флагман" }
+        };
         public DevicePageController(DeviceBookingContext context,
             DeviceService deviceService)
         {
@@ -26,6 +37,7 @@ namespace DotNetEd.CoreAdmin.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
+            ViewBag.Message = TempData["shortMessage"]?.ToString();
             var devices = new DeviceList { Devices = await deviceService.GetDevicesFromDB() };
             return View(devices);
         }
@@ -36,7 +48,10 @@ namespace DotNetEd.CoreAdmin.Controllers
             var message = await deviceService.DeleteDevice(id);
 
             if (message != null)
-                return new JsonResult(new { error = true, message });
+            {
+                TempData["shortMessage"] = message;
+                return RedirectToAction("Index");
+            }
 
             return RedirectToAction("Index");
 
@@ -48,7 +63,10 @@ namespace DotNetEd.CoreAdmin.Controllers
             var message = await deviceService.DeleteDevices(deviceList);
 
             if (message != null)
-                return new JsonResult(new { error = true, message });
+            {
+                TempData["shortMessage"] = message;
+                return RedirectToAction("Index");
+            }
 
             return RedirectToAction("Index");
         }
@@ -66,9 +84,10 @@ namespace DotNetEd.CoreAdmin.Controllers
             var classOfDevice = (Enum.GetValues(typeof(ClassOfDevice)).Cast<int>()
                                                                       .Select(e => 
                                                                       new SelectListItem() 
-                                                                      { Text = Enum.GetName(typeof(ClassOfDevice), e), 
-                                                                        Value = e.ToString(),
-                                                                        Selected = false
+                                                                      { 
+                                                                          Text = MapDevice[Enum.GetName(typeof(ClassOfDevice), e)], 
+                                                                          Value = e.ToString(),
+                                                                          Selected = false
                                                                       })).ToList();
             var department = context.Departments.Select(d => 
             new SelectListItem { 
@@ -104,7 +123,8 @@ namespace DotNetEd.CoreAdmin.Controllers
         {
             if (ModelState.IsValid)
             {
-                await deviceService.CreateDevice(formData);
+                var url = $"{Request.Scheme}://{Request.Host}{Request.PathBase}/api/device/info/full/";
+                await deviceService.CreateDevice(formData, url);
                 if (!formData.Stay)
                 {
                     return RedirectToAction("Index");
@@ -136,7 +156,7 @@ namespace DotNetEd.CoreAdmin.Controllers
                                                                       .Select(e =>
                                                                       new SelectListItem()
                                                                       {
-                                                                          Text = Enum.GetName(typeof(ClassOfDevice), e),
+                                                                          Text = MapDevice[Enum.GetName(typeof(ClassOfDevice), e)],
                                                                           Value = e.ToString(),
                                                                           Selected = false
                                                                       }))
@@ -161,7 +181,10 @@ namespace DotNetEd.CoreAdmin.Controllers
             var device = await deviceService.GetDeviceToEdit(id);
 
             if (device == null)
-                return NotFound();
+            {
+                TempData["shortMessage"] = "Device is not found";
+                return RedirectToAction("Index");
+            }
 
             var os = context.Os.Select(o => new SelectListItem
             {
@@ -190,7 +213,7 @@ namespace DotNetEd.CoreAdmin.Controllers
                                                           .Select(e =>
                                                           new SelectListItem()
                                                           {
-                                                              Text = Enum.GetName(typeof(ClassOfDevice), e),
+                                                              Text = MapDevice[Enum.GetName(typeof(ClassOfDevice), e)],
                                                               Value = e.ToString(),
                                                               Selected = device.ClassOfDevice != null && ((int)device.ClassOfDevice) == e
                                                           }))
@@ -205,6 +228,7 @@ namespace DotNetEd.CoreAdmin.Controllers
             ViewBag.DepartmentId = department;
             ViewBag.TypeId = type;
             ViewBag.ClassOfDevice = classOfDevice;
+            ViewBag.Address = $"{Request.Scheme}://{Request.Host}{Request.PathBase}";
 
             return View("Edit", device);
         }
@@ -217,7 +241,10 @@ namespace DotNetEd.CoreAdmin.Controllers
                 var message = await deviceService.EditDevice(formData.Id, formData);
 
                 if (message != null)
-                    return new JsonResult(new { error = true, message });
+                {
+                    TempData["shortMessage"] = message;
+                    return RedirectToAction("Index");
+                }
 
                 return RedirectToAction("Index");
             }
@@ -247,7 +274,7 @@ namespace DotNetEd.CoreAdmin.Controllers
                                                                       .Select(e =>
                                                                       new SelectListItem()
                                                                       {
-                                                                          Text = Enum.GetName(typeof(ClassOfDevice), e),
+                                                                          Text = MapDevice[Enum.GetName(typeof(ClassOfDevice), e)],
                                                                           Value = e.ToString(),
                                                                           Selected = false
                                                                       }))
@@ -262,8 +289,9 @@ namespace DotNetEd.CoreAdmin.Controllers
             ViewBag.DepartmentId = department;
             ViewBag.TypeId = type;
             ViewBag.ClassOfDevice = classOfDevice;
+            ViewBag.Address = $"{Request.Scheme}://{Request.Host}{Request.PathBase}";
 
-            formData.ImagePath = formData.ImagePath ?? "/default.png";
+            formData.ImagePath ??= "/default.png";
 
             return View("Edit", formData);
         }

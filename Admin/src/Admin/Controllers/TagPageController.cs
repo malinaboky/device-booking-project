@@ -1,10 +1,14 @@
-﻿using DotNetEd.CoreAdmin.Service;
+﻿using Database.Models;
+using DotNetEd.CoreAdmin.Service;
 using DotNetEd.CoreAdmin.ViewModels.Tag;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
 namespace DotNetEd.CoreAdmin.Controllers
 {
+    [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
     public class TagPageController : Controller
     {
         private readonly TagService tagService;
@@ -68,8 +72,8 @@ namespace DotNetEd.CoreAdmin.Controllers
         [HttpPost]
         public async Task<IActionResult> ChangeOs([FromBody] ChangeTag os)
         {
-            await tagService.EditOs(os);
-            return RedirectToAction("Index");
+            var messange = await tagService.EditOs(os);
+            return Json(new { messange });
         }
 
         [HttpPost]
@@ -82,14 +86,29 @@ namespace DotNetEd.CoreAdmin.Controllers
         [HttpPost]
         public async Task<IActionResult> ChangeType([FromBody] ChangeTag type)
         {
-            await tagService.EditType(type);
+            var messange = await tagService.EditType(type);
+            return Json(new { messange });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> DeleteTagPost(long id)
+        {
+            await tagService.DeleteTag(id);
             return RedirectToAction("Index");
         }
 
-        //[HttpPost]
-        //async Task<IActionResult> DeleteTag(long id)
-        //{
+        [HttpGet]
+        public async Task<IActionResult> DeleteOsPost(long id)
+        {
+            await tagService.DeleteOs(id);
+            return RedirectToAction("Index");
+        }
 
-        //}
+        [HttpGet]
+        public async Task<IActionResult> DeleteTypePost(long id)
+        {
+            await tagService.DeleteType(id);
+            return RedirectToAction("Index");
+        }
     }
 }

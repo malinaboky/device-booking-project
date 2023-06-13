@@ -16,9 +16,19 @@
     var dic = new Dictionary<long, long>();
     for (var i = 0; i < Model.Records.Count(); i++)
         dic.Add(Model.Records[i].Id, (long)i);
+
+    var message = ViewBag.Message as string;
 }
 
-<h1 class="display-4">Записи</h1>
+<link rel="stylesheet" href="~/css/style.css">
+
+<div class="title">
+    <h1 class="display-4">Записи</h1>
+    @if (message != null) {
+        <label id="error">@message</label>
+    }
+</div>
+
 
 @using (Html.BeginForm("DeleteAmountPost", "RecordPage", FormMethod.Post, new { @class = "add-form" }))
 {
@@ -46,7 +56,7 @@
                                 columns.Add<long>(item => item.DeviceId)
                                        .Titled(new PropertyForFiltering { Able = true, Name = "Device ID" });
 
-                                columns.Add(item => Html.ActionLink("Delete", "Delete", new { Id = item.Id }));
+                                columns.Add(item => Html.ActionLink("Delete", "DeletePost", new { Id = item.Id }));
                                 columns.Add(item => Html.CheckBoxFor(y => y.Records[(int)dic[item.Id]].Selected, new { @id = $"Selected{dic[item.Id]}", @onclick = $"turnSelectAll({dic[item.Id]})" }))
                                     .Titled(new HtmlString("<input type=\"checkbox\" id=\"SelectAll\" onclick=\"changeAll()\">"));
                             }
@@ -72,7 +82,7 @@
         document.querySelectorAll(".mvc-grid").forEach(element => new MvcGrid(element));
     </script>
 }
-    <link rel="stylesheet" href="~/css/style.css">
+    
 
 
 
