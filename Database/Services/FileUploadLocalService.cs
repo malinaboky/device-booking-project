@@ -7,6 +7,7 @@ using QRCoder;
 using System.Drawing;
 using Image = Database.Models.Image;
 using System.Collections;
+using Microsoft.AspNetCore.Http.Internal;
 
 namespace Database.Services
 {
@@ -57,8 +58,7 @@ namespace Database.Services
             QRCode QrCode = new QRCode(QrCodeInfo);
             Bitmap QrBitmap = QrCode.GetGraphic(60);
             byte[] file = QrBitmap.BitmapToByteArray();
-            var stream = new MemoryStream(file);
-            var path = await UploadFile(new FormFile(stream, 0, file.Length, "image/png", "qr.png"), "QR", device.Id.ToString());
+            var path = await UploadQrFile(file, "QR", device.Id.ToString());
 
             if (path.Length == 0)
                 return false;
@@ -156,6 +156,34 @@ namespace Database.Services
                     {
                         await file.CopyToAsync(fileStream);
                         newPath = Path.Combine(type, $"{type}_{id}{Path.GetExtension(file.FileName)}");
+                    }
+                }
+                return newPath;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("File Copy Failed", ex);
+            }
+        }
+
+        public async Task<string> UploadQrFile(byte[] file, string type, string id)
+        {
+            var newPath = "";
+            try
+            {
+                if (file.Length > 0)
+                {
+                    var path = Path.GetFullPath(Path.Combine(_parentImageFolder, type));
+                    if (!Directory.Exists(path))
+                        Directory.CreateDirectory(path);
+
+                    using(var ms = new MemoryStream(file))
+                    {
+                        using (var fileStream = new FileStream(Path.Combine(path, $"{type}_{id}.png"), FileMode.Create))
+                        {
+                            await ms.CopyToAsync(fileStream);
+                            newPath = Path.Combine(type, $"{type}_{id}.png");
+                        }
                     }
                 }
                 return newPath;
