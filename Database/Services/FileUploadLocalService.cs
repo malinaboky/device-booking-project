@@ -3,11 +3,10 @@ using Database.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Http;
-using QRCoder;
-using System.Drawing;
 using Image = Database.Models.Image;
 using System.Collections;
 using Microsoft.AspNetCore.Http.Internal;
+using Net.Codecrete.QrCodeGenerator;
 
 namespace Database.Services
 {
@@ -53,12 +52,8 @@ namespace Database.Services
         public async Task<bool> UploadPathToDeviceQR(Device device, string url)
         {
             url += device.Id;
-            QRCodeGenerator QrGenerator = new QRCodeGenerator();
-            QRCodeData QrCodeInfo = QrGenerator.CreateQrCode(url, QRCodeGenerator.ECCLevel.Q);
-            QRCode QrCode = new QRCode(QrCodeInfo);
-            Bitmap QrBitmap = QrCode.GetGraphic(60);
-            byte[] file = QrBitmap.BitmapToByteArray();
-            var path = await UploadQrFile(file, "QR", device.Id.ToString());
+            var qr = QrCode.EncodeText(url, QrCode.Ecc.Medium);
+            var path = UploadQrFile(qr, "QR", device.Id.ToString());
 
             if (path.Length == 0)
                 return false;
@@ -166,26 +161,20 @@ namespace Database.Services
             }
         }
 
-        public async Task<string> UploadQrFile(byte[] file, string type, string id)
+        public string UploadQrFile(QrCode file, string type, string id)
         {
-            var newPath = "";
             try
             {
-                if (file.Length > 0)
-                {
-                    var path = Path.GetFullPath(Path.Combine(_parentImageFolder, type));
-                    if (!Directory.Exists(path))
-                        Directory.CreateDirectory(path);
+                var path = Path.GetFullPath(Path.Combine(_parentImageFolder, type));
+                if (!Directory.Exists(path))
+                    Directory.CreateDirectory(path);
 
-                    using(var ms = new MemoryStream(file))
-                    {
-                        using (var fileStream = new FileStream(Path.Combine(path, $"{type}_{id}.png"), FileMode.Create))
-                        {
-                            await ms.CopyToAsync(fileStream);
-                            newPath = Path.Combine(type, $"{type}_{id}.png");
-                        }
-                    }
-                }
+                var pathToQr = Path.Combine(path, $"{type}_{id}.png");
+
+                file.SaveAsPng(pathToQr, 16, 3);
+
+                var newPath = Path.Combine(type, $"{type}_{id}.png");
+
                 return newPath;
             }
             catch (Exception ex)

@@ -8,6 +8,7 @@ using Microsoft.Data.SqlClient.Server;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -38,7 +39,7 @@ namespace DotNetEd.CoreAdmin.Service
                 OsId = formData.OsId,
                 TypeId = formData.TypeId,
                 Resolution = formData.Resolution.Height == null ? null : $"{formData.Resolution.Height} x {formData.Resolution.Width}",
-                Diagonal = formData.Diagonal == null ? null : double.Parse(formData.Diagonal.Replace('.', ',')),
+                Diagonal = formData.Diagonal == null ? null : Double.Parse(formData.Diagonal.Replace(',', '.'), CultureInfo.InvariantCulture),
                 Class = formData.ClassOfDevice.ToString() == "" ? null : formData.ClassOfDevice.ToString(),
             };
             context.Devices.Add(device);
@@ -171,7 +172,7 @@ namespace DotNetEd.CoreAdmin.Service
             if (device == null)
                 return "Device is not found";
 
-            device.Diagonal = formData.Diagonal == null ? null : double.Parse(formData.Diagonal.Replace('.', ','));
+            device.Diagonal = formData.Diagonal == null ? null : Double.Parse(formData.Diagonal.Replace(',', '.'), CultureInfo.InvariantCulture);
             device.Name = formData.Name;
             device.DepartmentId = formData.DepartmentId;
             device.OsId = formData.OsId;
