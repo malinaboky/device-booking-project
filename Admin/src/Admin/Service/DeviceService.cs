@@ -48,7 +48,7 @@ namespace DotNetEd.CoreAdmin.Service
                 await context.SaveChangesAsync();
                 if (formData.Image != null)
                     await uploadService.UploadPathToDevice(device, formData.Image);
-                await uploadService.UploadPathToDeviceQR(device, url);
+                await uploadService.UploadPathToDeviceQR(device);
             }
             catch(DbUpdateException)
             {
@@ -187,6 +187,7 @@ namespace DotNetEd.CoreAdmin.Service
                 await context.SaveChangesAsync();
                 if (formData.Image != null)
                     await uploadService.UploadPathToDevice(device, formData.Image);
+                await uploadService.UploadPathToDeviceQR(device);
             }
             catch(DbUpdateException)
             {

@@ -49,9 +49,9 @@ namespace Database.Services
             }
         }
 
-        public async Task<bool> UploadPathToDeviceQR(Device device, string url)
+        public async Task<bool> UploadPathToDeviceQR(Device device)
         {
-            url += device.Id;
+            var url = $"http://84.201.132.210/devices/device?id={device.Id}";
             var qr = QrCode.EncodeText(url, QrCode.Ecc.Medium);
             var path = UploadQrFile(qr, "QR", device.Id.ToString());
 
